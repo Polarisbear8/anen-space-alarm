@@ -14,13 +14,17 @@
 
 ## 下载安装
 
-**[⬇ 下载最新 APK](https://github.com/Polarisbear8/anen-space-alarm/releases/latest)**（debug 签名，仅供体验与测试）
+### 👉 [点这里直接下载 APK](https://github.com/Polarisbear8/anen-space-alarm/releases/download/v1.0.1/anen-space-alarm-1.0.1-debug.apk)（约 55 MB）
 
-1. 下载后允许「安装未知来源应用」
-2. 打开 App，按教程授予**精确定位**与**「始终允许」后台定位**（Android 10+ 必须，否则退到后台不会触发）
-3. 从高德地图分享地点给「阿能的空间闹钟」
+其他版本见 [Releases 页面](https://github.com/Polarisbear8/anen-space-alarm/releases)（手机浏览器里附件藏在折叠的 **Assets** 里，点开就能看到 `.apk`）。
 
-> 想自己编译见 [构建](#构建)。
+**安装三步：**
+
+1. 点上面的链接下载 APK，浏览器提示风险时选「**仍要下载**」
+2. 打开下载好的文件安装；系统提示「**未知来源应用**」时选允许，Play 保护机制提示时选「**仍要安装**」
+3. 打开 App → 按教程授予「**精确定位**」与「**始终允许**」后台定位（Android 10+ 必须，否则退到后台不会触发）→ 之后从高德地图分享地点给「阿能的空间闹钟」
+
+> 这是 debug 签名包，仅供体验与测试。想自己编译见 [构建](#构建)。
 
 ## 特性
 
@@ -112,7 +116,7 @@ echo "sdk.dir=/path/to/Android/Sdk" > local.properties
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-首次在设备上使用：打开 App 会显示教程 → 按提示授予**精确定位**与**“始终允许”后台定位**（Android 10+ 必须，否则退到后台不会触发）→ 从高德分享地点即可。
+首次在设备上使用：打开 App 会显示教程 → 按提示授予 **精确定位** 与 **“始终允许”后台定位**（Android 10+ 必须，否则退到后台不会触发）→ 从高德分享地点即可。
 
 > `local.properties` 已被 `.gitignore` 忽略，请勿提交。
 
@@ -162,7 +166,11 @@ App 不会在后台主动定位、不轮询、不常驻服务；待机时不联�
 
 **ANEN Space Alarm** is a lightweight, event-driven Android app that alerts you when you approach a place you chose.
 
-**[⬇ Download the latest APK](https://github.com/Polarisbear8/anen-space-alarm/releases/latest)** (debug-signed, for testing only). Grant precise and "allow all the time" background location, then share a place from AMap to ANEN.
+**[⬇ Download the APK directly](https://github.com/Polarisbear8/anen-space-alarm/releases/download/v1.0.1/anen-space-alarm-1.0.1-debug.apk)** (~55 MB, debug-signed, for testing only). Other versions are on the [Releases page](https://github.com/Polarisbear8/anen-space-alarm/releases) — on a phone browser the attachments hide behind the collapsed **Assets** section.
+
+1. Tap the link and confirm the browser's download warning
+2. Open the file; allow "install unknown apps" and, if Play Protect warns, choose "install anyway"
+3. Open ANEN and grant precise + "allow all the time" background location, then share a place from AMap to ANEN
 
 - **Share from AMap** → pick a place → Share → ANEN resolves it automatically (short links, URIs, place pages; multi-level fallback, no API key required).
 - **Three alert styles**: notification only · notification + vibration · notification + vibration + alarm.
