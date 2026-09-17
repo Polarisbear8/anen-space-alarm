@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -30,6 +31,9 @@ import com.anen.spacealarm.ui.theme.AnenOrange
 import com.anen.spacealarm.ui.theme.AnenText
 import com.anen.spacealarm.ui.theme.AnenTextDim
 
+/** 项目仓库地址：点击即用系统浏览器打开。 */
+private const val REPO_URL = "https://github.com/Polarisbear8/anen-space-alarm"
+
 /**
  * About：版本信息 + 开源致谢。
  *
@@ -41,6 +45,7 @@ import com.anen.spacealarm.ui.theme.AnenTextDim
 fun AboutScreen(onBack: () -> Unit, onUnlockEasterEgg: () -> Unit = {}) {
     var versionTaps by remember { mutableStateOf(0) }
     var lastTapAt by remember { mutableStateOf(0L) }
+    val uriHandler = LocalUriHandler.current
 
     TermScreen {
         TermHeader(
@@ -65,6 +70,12 @@ fun AboutScreen(onBack: () -> Unit, onUnlockEasterEgg: () -> Unit = {}) {
             }
         )
         TermDataRow(stringResource(R.string.dev_label_package), BuildConfig.APPLICATION_ID)
+        TermDataRow(
+            stringResource(R.string.about_source_label),
+            REPO_URL,
+            modifier = Modifier.clickable { runCatching { uriHandler.openUri(REPO_URL) } },
+            valueColor = AnenOrange
+        )
         TermDataRow(
             stringResource(R.string.dev_label_android),
             "${android.os.Build.VERSION.RELEASE} (SDK ${android.os.Build.VERSION.SDK_INT})"

@@ -175,6 +175,7 @@
     <string name="about_app">ANEN Space Alarm</string>
     <string name="about_version">%1$s (%2$d)</string>
     <string name="about_acknowledgements">ACKNOWLEDGEMENTS</string>
+    <string name="about_source_label">Source</string>
     <string name="about_notes">NOTES</string>
     <string name="about_notes_1">The parsing, coordinate conversion, geofencing and alerting logic in this project is implemented from scratch; the open-source projects above were referenced for ideas and public documentation only.</string>
     <string name="about_notes_3">Map data copyright belongs to the OpenStreetMap contributors.</string>
