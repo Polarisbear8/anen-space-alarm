@@ -17,10 +17,14 @@ class EasterEggTest {
 
     @Test
     fun `easter egg reminder is a disabled one shot alarm with 100m radius`() {
-        val reminder = EasterEgg.reminder("hello")
+        val reminder = EasterEgg.reminder(
+            placeName = "测试米粉店",
+            address = "测试步行街",
+            message = "hello"
+        )
 
-        assertEquals(EasterEgg.PLACE_NAME, reminder.placeName)
-        assertEquals(EasterEgg.ADDRESS, reminder.address)
+        assertEquals("测试米粉店", reminder.placeName)
+        assertEquals("测试步行街", reminder.address)
         assertEquals(100f, reminder.radiusMeters, 0f)
         assertEquals("hello", reminder.message)
         assertEquals(AlertMode.ALARM, reminder.alertMode)
@@ -30,8 +34,22 @@ class EasterEggTest {
     }
 
     @Test
+    fun `already created matches by coordinates so a language switch cannot duplicate it`() {
+        val english = EasterEgg.reminder(
+            placeName = "Laoshui Street Rice Noodles",
+            address = "Tianxia Guilin Pedestrian Street",
+            message = "English"
+        )
+        val elsewhere = english.copy(placeName = "另一个地方", latitude = 23.0, longitude = 113.0)
+
+        assertFalse(EasterEgg.alreadyCreated(emptyList()))
+        assertTrue("同坐标、不同语言的名称也应视为已创建", EasterEgg.alreadyCreated(listOf(english)))
+        assertFalse("其它地点不算已创建", EasterEgg.alreadyCreated(listOf(elsewhere)))
+    }
+
+    @Test
     fun `gcj02 poi is converted to wgs84 exactly once`() {
-        val reminder = EasterEgg.reminder("hello")
+        val reminder = EasterEgg.reminder(placeName = "测试米粉店", address = "测试步行街", message = "hello")
 
         val shift = DistanceCalculator.calculateDistanceMeters(
             gcj02Latitude, gcj02Longitude, reminder.latitude, reminder.longitude

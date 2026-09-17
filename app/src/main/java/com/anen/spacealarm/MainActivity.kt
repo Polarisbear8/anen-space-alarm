@@ -460,8 +460,14 @@ private fun AnenRoot() {
             onUnlockEasterEgg = {
                 scope.launch {
                     // 连点不重复建条目：已解锁过就不再保存
-                    if (reminders.none { it.placeName == EasterEgg.PLACE_NAME }) {
-                        repository.save(EasterEgg.reminder(context.getString(R.string.easter_egg_message)))
+                    if (!EasterEgg.alreadyCreated(reminders)) {
+                        repository.save(
+                            EasterEgg.reminder(
+                                placeName = context.getString(R.string.easter_egg_place_name),
+                                address = context.getString(R.string.easter_egg_address),
+                                message = context.getString(R.string.easter_egg_message)
+                            )
+                        )
                     }
                     easterEggFound = true
                 }

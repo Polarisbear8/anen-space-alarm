@@ -22,6 +22,7 @@
 - **中英双语**：跟随系统，也可在设置里手动切换
 - **开发者模式**（默认关闭）：分级解析日志、App 系统状态、一键复制调试报告
 - **使用教程**：首次启动引导，设置里可随时重温
+- 关于页的版本号似乎有点调皮，多戳几下说不定会有惊喜（别声张）
 
 ## 截图
 
@@ -157,6 +158,7 @@ App 不会在后台主动定位、不轮询、不常驻服务；待机时不联�
 - **Map-first UI**: all targets, geofence circles, straight-line distance; enabled targets in orange, disabled in gray.
 - **Battery friendly**: background triggering relies entirely on the system geofence — no GPS polling, no always-on foreground service.
 - **Bilingual** (Chinese / English), **developer mode** with per-level resolver logs and one-tap debug report export.
+- The version row in About is a little mischievous — tap it a few times and see. Keep it quiet.
 
 Build with JDK 17 + Android SDK 35: `./gradlew assembleDebug`. See [构建](#构建) for details.
 

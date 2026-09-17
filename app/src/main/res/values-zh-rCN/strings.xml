@@ -185,8 +185,10 @@
 
     <!-- 彩蛋：在「关于」页连续点击版本号 3 次解锁 -->
     <string name="easter_egg_dialog_title">小彩蛋</string>
-    <string name="easter_egg_dialog_message">恭喜发现作者的小彩蛋~去看看你的闹钟表列吧</string>
+    <string name="easter_egg_dialog_message">恭喜发现作者的小彩蛋~去看看你的闹钟列表吧</string>
     <string name="easter_egg_message">作者认为最好吃的桂林米粉，值得一试，欢迎来桂林玩！</string>
+    <string name="easter_egg_place_name">老水街米粉(天下桂林步行街店)</string>
+    <string name="easter_egg_address">天下桂林步行街</string>
     <string name="credit_maplibre">地图渲染 / 矢量瓦片图层（本项目当前使用）</string>
     <string name="credit_geoshare">参考其地图分享与链接解析思路。</string>
     <string name="credit_talarm">参考其闹钟相关实现思路。</string>

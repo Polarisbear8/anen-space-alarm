@@ -187,6 +187,8 @@
     <string name="easter_egg_dialog_title">EASTER EGG</string>
     <string name="easter_egg_dialog_message">You found the author\'s little easter egg ~ go take a look at your alarm list.</string>
     <string name="easter_egg_message">The author\'s pick for the best Guilin rice noodles. Worth a try. Welcome to Guilin!</string>
+    <string name="easter_egg_place_name">Laoshui Street Rice Noodles (Tianxia Guilin Pedestrian Street Branch)</string>
+    <string name="easter_egg_address">Tianxia Guilin Pedestrian Street, Guilin</string>
     <string name="credit_maplibre">Map rendering / vector tile layers (used by this project)</string>
     <string name="credit_geoshare">Referenced for map-sharing / URL resolving ideas.</string>
     <string name="credit_talarm">Referenced for alarm-related implementation ideas.</string>
