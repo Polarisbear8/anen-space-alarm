@@ -8,9 +8,19 @@
 我在哪里 → 目标在哪里 → 还有多远 → 什么时候提醒 → 怎么提醒
 ```
 
-[English](#english) · [截图](#截图) · [架构](#架构) · [构建](#构建) · [测试](#测试) · [许可证](#许可证)
+[English](#english) · [下载安装](#下载安装) · [截图](#截图) · [架构](#架构) · [构建](#构建) · [测试](#测试) · [许可证](#许可证)
 
 ---
+
+## 下载安装
+
+**[⬇ 下载最新 APK](https://github.com/Polarisbear8/anen-space-alarm/releases/latest)**（debug 签名，仅供体验与测试）
+
+1. 下载后允许「安装未知来源应用」
+2. 打开 App，按教程授予**精确定位**与**「始终允许」后台定位**（Android 10+ 必须，否则退到后台不会触发）
+3. 从高德地图分享地点给「阿能的空间闹钟」
+
+> 想自己编译见 [构建](#构建)。
 
 ## 特性
 
@@ -151,6 +161,8 @@ App 不会在后台主动定位、不轮询、不常驻服务；待机时不联�
 ## English
 
 **ANEN Space Alarm** is a lightweight, event-driven Android app that alerts you when you approach a place you chose.
+
+**[⬇ Download the latest APK](https://github.com/Polarisbear8/anen-space-alarm/releases/latest)** (debug-signed, for testing only). Grant precise and "allow all the time" background location, then share a place from AMap to ANEN.
 
 - **Share from AMap** → pick a place → Share → ANEN resolves it automatically (short links, URIs, place pages; multi-level fallback, no API key required).
 - **Three alert styles**: notification only · notification + vibration · notification + vibration + alarm.
