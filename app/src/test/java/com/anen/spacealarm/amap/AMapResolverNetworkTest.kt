@@ -10,6 +10,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.net.InetAddress
 
 /**
  * 联网解析链路的端到端测试（MockWebServer，不访问真实高德）：
@@ -30,7 +31,9 @@ class AMapResolverNetworkTest {
     @Before
     fun setUp() {
         server = MockWebServer()
-        server.start()
+        // 显式绑定 127.0.0.1：MockWebServer 默认按主机名绑定，Linux 上 url() 可能给出
+        // localhost，与受信任列表不一致会让测试在 CI 上误报。
+        server.start(InetAddress.getByName("127.0.0.1"), 0)
     }
 
     @After
