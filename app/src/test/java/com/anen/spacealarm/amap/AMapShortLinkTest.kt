@@ -101,7 +101,7 @@ class AMapShortLinkTest {
             val resolver = AMapResolver(
                 client,
                 webViewResolver = null,
-                trustedHosts = listOf("127.0.0.1", "wb.amap.com")
+                trustedHosts = listOf(server.url("/").host, "wb.amap.com")
             )
 
             val result = resolver.resolve(

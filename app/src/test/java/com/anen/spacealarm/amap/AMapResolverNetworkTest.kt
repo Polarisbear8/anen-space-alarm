@@ -49,7 +49,7 @@ class AMapResolverNetworkTest {
         )
         server.enqueue(MockResponse().setResponseCode(200).setBody(PLACE_PAGE_HTML))
 
-        val resolver = AMapResolver(client, trustedHosts = listOf("127.0.0.1"))
+        val resolver = AMapResolver(client, trustedHosts = listOf(server.url("/").host))
         val result = resolver.resolve(shareText(server.url("/s/abc").toString()))
 
         assertTrue(
@@ -66,7 +66,7 @@ class AMapResolverNetworkTest {
 
     @Test
     fun `untrusted share link is never fetched`() = runTest {
-        val resolver = AMapResolver(client, trustedHosts = listOf("127.0.0.1"))
+        val resolver = AMapResolver(client, trustedHosts = listOf(server.url("/").host))
         val result = resolver.resolve(shareText("https://example.com/place/B00140C1IU"))
 
         assertEquals(0, server.requestCount)

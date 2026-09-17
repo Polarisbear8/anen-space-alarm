@@ -24,15 +24,15 @@ class AMapRedirectResolverTest {
         .followSslRedirects(false)
         .build()
 
-    // MockWebServer 的 url() 使用 127.0.0.1，测试里把它当作受信任域名
-    private val trusted = listOf("127.0.0.1")
+    // MockWebServer 的 url() 主机名依平台而定（Windows 上是 127.0.0.1，Linux 上是
+    // localhost），受信任列表必须取自它，否则测试会在 CI 上误报。
+    private lateinit var trusted: List<String>
 
     @Before
     fun setUp() {
         server = MockWebServer()
-        // 显式绑定 127.0.0.1：MockWebServer 默认按主机名绑定，Linux 上 url() 可能给出
-        // localhost，与受信任列表不一致会让测试在 CI 上误报。
         server.start(InetAddress.getByName("127.0.0.1"), 0)
+        trusted = listOf(server.url("/").host)
     }
 
     @After
