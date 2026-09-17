@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">阿能的空间闹钟</string>
+    <string name="app_title">ANEN / SPATIAL ALARM</string>
+    <string name="app_subtitle">空间提醒终端</string>
+    <string name="app_description">基于空间位置的轻量提醒工具：接近你选定的地点时提醒你。</string>
+
+    <!-- Common actions -->
+    <string name="action_back">返回</string>
+    <string name="action_cancel">取消</string>
+    <string name="action_ok">好</string>
+    <string name="action_retry">重试</string>
+    <string name="action_exit">退出</string>
+    <string name="action_show">展开</string>
+    <string name="action_hide">收起</string>
+    <string name="action_grant">授权</string>
+    <string name="action_copy_debug">复制调试信息</string>
+    <string name="action_copied">已复制</string>
+
+    <!-- Labels -->
+    <string name="label_target">目标</string>
+    <string name="label_name">名称</string>
+    <string name="label_address">地址</string>
+    <string name="label_latitude">纬度</string>
+    <string name="label_longitude">经度</string>
+    <string name="label_source">来源</string>
+    <string name="label_status">状态</string>
+    <string name="label_radius">半径</string>
+    <string name="label_range">范围</string>
+    <string name="label_distance">距离</string>
+    <string name="label_mode">方式</string>
+    <string name="label_message">消息</string>
+
+    <!-- Status -->
+    <string name="status_armed">监控中</string>
+    <string name="status_triggered">已触发</string>
+    <string name="status_disabled">已停用</string>
+    <string name="status_standby">待机</string>
+    <string name="status_in_range">已在范围内</string>
+    <string name="status_approaching">接近中</string>
+    <string name="mode_notification">仅通知</string>
+    <string name="mode_vibration">通知 + 震动</string>
+    <string name="mode_alarm">通知 + 震动 + 闹铃</string>
+
+    <!-- Home -->
+    <string name="home_no_target_title">暂无生效目标</string>
+    <string name="home_no_target_empty">从高德分享地点，或点击“新建空间闹钟”。</string>
+    <string name="home_no_target_disabled">当前没有已启用的空间闹钟（共 %1$d 条）。</string>
+    <string name="home_alarms">闹钟 %1$d</string>
+    <string name="home_arm_new">+ 新建空间闹钟</string>
+    <string name="home_recenter">回到目标</string>
+    <string name="home_refresh_location">刷新定位</string>
+    <string name="warning_no_geofence">此设备没有可用的系统地理围栏服务（Google Play services 缺失）</string>
+    <string name="warning_need_precise">空间闹钟需要精确位置，请开启“使用精确位置”。</string>
+    <string name="warning_need_background">需要允许“始终允许”定位，否则 App 不在前台时不会触发。</string>
+
+    <!-- Place input -->
+    <string name="new_alarm_title">新建空间闹钟</string>
+    <string name="place_input_subtitle">地点输入</string>
+    <string name="configure_subtitle">设置触发条件</string>
+    <string name="section_paste_link">粘贴高德链接</string>
+    <string name="paste_link_hint">粘贴从高德复制出来的内容即可（含名称、地址等多行文本也可以），例如 https://surl.amap.com/gS24Bk2ddZ6</string>
+    <string name="action_resolve">解析链接</string>
+    <string name="action_back_to_map">返回地图</string>
+
+    <!-- Create reminder -->
+    <string name="section_range">提醒范围</string>
+    <string name="section_alert_mode">提醒方式</string>
+    <string name="section_message">提醒内容</string>
+    <string name="radius_hint">50 - 50000 米；直线距离，不是道路距离。小范围（如 100 m）提醒可能受定位误差影响。</string>
+    <string name="radius_custom">自定义</string>
+    <string name="radius_custom_placeholder">米</string>
+    <string name="alert_notification_desc">进入范围后弹出通知</string>
+    <string name="alert_vibration_desc">通知并震动（震动相当于闹铃）</string>
+    <string name="alert_alarm_desc">进入范围后全屏响铃 + 振动</string>
+    <string name="action_arm">启用</string>
+    <string name="action_arming">启用中…</string>
+    <string name="coordinate_internal_note">（内部统一使用 WGS84）</string>
+    <string name="system_status_ready">系统状态：就绪</string>
+    <string name="system_status_invalid_range">系统状态：范围无效</string>
+    <string name="default_message">快到了</string>
+
+    <!-- Share -->
+    <string name="share_subtitle">分享目标</string>
+    <string name="resolving">正在识别分享地点…</string>
+    <string name="section_target_location">目标地点</string>
+    <string name="action_use_this_location">使用该地点</string>
+    <string name="section_manual_input">手动输入</string>
+    <string name="manual_input_hint">粘贴坐标，例如 113.268932,23.081058（高德坐标默认 GCJ02）</string>
+    <string name="manual_name_placeholder">地点名称（可选）</string>
+    <string name="manual_coords_placeholder">113.268932,23.081058</string>
+    <string name="action_use_this_coordinate">使用该坐标</string>
+    <string name="manual_coords_invalid">坐标格式无法识别</string>
+    <string name="section_debug_payload">调试：原始分享载荷</string>
+    <string name="raw_share_intent">原始分享 Intent</string>
+    <string name="raw_share_intent_hidden">原始分享 Intent（已隐藏）</string>
+    <string name="empty_payload">（空）</string>
+
+    <!-- Resolve failures -->
+    <string name="resolve_failed_empty">没有可解析的内容：分享里没有文本、链接或剪贴板数据。</string>
+    <string name="resolve_failed_no_link">没有发现高德链接，也没有可直接使用的坐标。</string>
+    <string name="resolve_failed_poi_only">该链接只包含高德 POI 编号（如 amap.com/place/B00140C1IU），未能从页面取得坐标。请改用带坐标的分享链接，或手动输入坐标。</string>
+    <string name="resolve_failed_fetch">已尝试联网解析该高德链接，但未取得坐标（可能被反爬限制或链接已失效）。</string>
+
+    <!-- Arm results -->
+    <string name="arm_blocked_inside_range">无法创建提醒：您当前已经在目标范围内。\n当前距离：约 %1$s　设定范围：%2$s\n请离开目标范围后再启用此提醒。</string>
+    <string name="arm_blocked_no_location">无法创建提醒：无法获取当前位置，请开启定位后重试。</string>
+    <string name="arm_blocked_permissions">无法创建提醒：需要精确位置权限与“始终允许”的后台定位权限。</string>
+    <string name="arm_saved_disabled">已保存为停用：%1$s。处理后可在地图列表里启用。</string>
+    <string name="arm_limit_reached">系统地理围栏数量已达上限（%1$d 个），请先删除部分空间闹钟。</string>
+    <string name="arm_registration_failed">地理围栏注册失败，请检查系统定位服务。</string>
+    <string name="arm_activated">空间闹钟已激活</string>
+
+    <!-- Alarm screen -->
+    <string name="alarm_screen_title">空间闹钟</string>
+    <string name="alarm_dismiss">关闭闹钟</string>
+    <string name="alarm_in_range_hint">已进入提醒范围</string>
+    <string name="alarm_target_placeholder">目标地点</string>
+
+    <!-- Reminder list -->
+    <string name="alarms_title">空间闹钟</string>
+    <string name="alarms_subtitle">共 %1$d 条</string>
+    <string name="alarms_empty">还没有空间闹钟。</string>
+    <string name="action_rearm">重新启用</string>
+    <string name="action_delete">删除</string>
+
+    <!-- Settings -->
+    <string name="settings_title">设置</string>
+    <string name="settings_subtitle">偏好与系统</string>
+    <string name="settings_section_items">项目</string>
+    <string name="settings_permission_check">权限核查</string>
+    <string name="settings_permission_check_desc">查看当前权限状态并打开系统设置</string>
+    <string name="settings_language">语言</string>
+    <string name="settings_language_desc">中文 / English</string>
+    <string name="settings_developer_mode">开发者模式</string>
+    <string name="settings_developer_mode_desc">显示调试信息与测试辅助</string>
+    <string name="settings_about">关于</string>
+    <string name="settings_about_desc">版本信息与开源致谢</string>
+    <string name="settings_developer_section">开发者</string>
+    <string name="dev_mode_on">开启</string>
+    <string name="dev_mode_off">关闭</string>
+
+    <!-- Permission check -->
+    <string name="permission_check_title">权限核查</string>
+    <string name="permission_check_subtitle">状态与系统设置</string>
+    <string name="permission_location">定位</string>
+    <string name="permission_location_desc">读取当前位置、注册地理围栏所需</string>
+    <string name="permission_precise">精确定位</string>
+    <string name="permission_precise_desc">地理围栏要求 ACCESS_FINE_LOCATION，只给“大致位置”不够</string>
+    <string name="permission_background">后台定位</string>
+    <string name="permission_background_desc">Android 10+ 必须选择“始终允许”，否则 App 不在前台时不会触发</string>
+    <string name="permission_notifications">通知</string>
+    <string name="permission_notifications_desc">进入范围后弹出提醒通知所需（Android 13+）</string>
+    <string name="permission_fullscreen">全屏通知</string>
+    <string name="permission_fullscreen_desc">锁屏时显示闹钟全屏界面（Android 14+，系统仍有最终控制权）</string>
+    <string name="permission_granted">已授权</string>
+    <string name="permission_not_granted">未授权</string>
+    <string name="permission_geofence_ready">围栏就绪</string>
+    <string name="action_open_system_settings">打开系统设置</string>
+    <string name="permission_request_hint">权限由具体功能触发申请，本页只显示当前状态。</string>
+
+    <!-- Language -->
+    <string name="language_title">语言</string>
+    <string name="language_subtitle">跟随系统 / 中文 / English</string>
+    <string name="language_system">跟随系统</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_english">English</string>
+    <string name="language_hint">选择会保存在本地并立即生效，不影响提醒、数据库与地理围栏。</string>
+
+    <!-- About -->
+    <string name="about_title">关于</string>
+    <string name="about_subtitle">阿能的空间闹钟</string>
+    <string name="about_version_section">版本</string>
+    <string name="about_app">阿能的空间闹钟</string>
+    <string name="about_version">%1$s（%2$d）</string>
+    <string name="about_acknowledgements">开源致谢</string>
+    <string name="about_notes">说明</string>
+    <string name="about_notes_1">本项目的解析、坐标转换、围栏与提醒逻辑均为自行实现；对上述开源项目的参考仅限思路与公开文档。</string>
+    <string name="about_notes_3">地图数据版权归 OpenStreetMap 贡献者所有。</string>
+    <string name="about_open_source_spirit">开源精神万岁。</string>
+    <string name="about_open_source_note">Respect open source. 感谢所有公开代码、文档与工程经验的贡献者。</string>
+
+    <!-- 彩蛋：在「关于」页连续点击版本号 3 次解锁 -->
+    <string name="easter_egg_dialog_title">小彩蛋</string>
+    <string name="easter_egg_dialog_message">恭喜发现作者的小彩蛋~去看看你的闹钟表列吧</string>
+    <string name="easter_egg_message">作者认为最好吃的桂林米粉，值得一试，欢迎来桂林玩！</string>
+    <string name="credit_maplibre">地图渲染 / 矢量瓦片图层（本项目当前使用）</string>
+    <string name="credit_geoshare">参考其地图分享与链接解析思路。</string>
+    <string name="credit_talarm">参考其闹钟相关实现思路。</string>
+    <string name="credit_brutus">参考其 Android 实现思路。</string>
+    <string name="credit_osm">作为地理数据与地图生态的一部分被参考。</string>
+    <string name="credit_openfreemap">开发阶段为地图样式提供矢量瓦片。</string>
+
+    <!-- Developer sections -->
+    <string name="dev_section_system_status">APP 系统状态</string>
+    <string name="dev_section_share">分享调试</string>
+    <string name="dev_section_resolver">高德解析调试</string>
+    <string name="dev_section_location">定位调试</string>
+    <string name="dev_section_geofence">地理围栏调试</string>
+    <string name="dev_section_alarm">闹钟调试</string>
+    <string name="dev_section_map">地图调试</string>
+    <string name="dev_section_reminder">提醒调试</string>
+    <string name="dev_label_version">版本</string>
+    <string name="dev_label_package">包名</string>
+    <string name="dev_label_android">Android 版本</string>
+    <string name="dev_label_sdk">SDK</string>
+    <string name="dev_label_device">设备</string>
+    <string name="dev_label_latitude">纬度</string>
+    <string name="dev_label_longitude">经度</string>
+    <string name="dev_label_accuracy">精度</string>
+    <string name="dev_label_coordinate_system">坐标系</string>
+    <string name="dev_label_provider">Provider</string>
+    <string name="dev_label_timestamp">时间戳</string>
+    <string name="dev_label_map_engine">地图引擎</string>
+    <string name="dev_label_map_source">地图数据源</string>
+    <string name="dev_label_geofence_engine">围栏引擎</string>
+    <string name="dev_label_active_geofences">活动围栏数</string>
+    <string name="dev_label_reminders">提醒总数</string>
+    <string name="dev_label_active_reminders">生效中</string>
+    <string name="dev_label_no_data">暂无数据</string>
+    <string name="dev_label_notification_channel">提醒通知渠道</string>
+    <string name="dev_label_alarm_channel">闹钟通知渠道</string>
+    <string name="dev_label_fullscreen">全屏通知</string>
+    <string name="dev_label_location_updates">前台地图定位</string>
+    <string name="dev_value_not_available">不可用</string>
+    <string name="dev_map_engine_value">MapLibre Native</string>
+    <string name="dev_geofence_engine_value">Google Play services GeofencingClient</string>
+    <string name="dev_location_updates_value">15 秒 / 低功耗</string>
+    <string name="dev_reminder_state">状态</string>
+    <string name="dev_reminder_id">提醒 ID</string>
+    <string name="dev_reminder_target">目标</string>
+    <string name="dev_reminder_radius">半径</string>
+    <string name="dev_reminder_alert_mode">提醒方式</string>
+    <string name="dev_value_yes">是</string>
+    <string name="dev_value_no">否</string>
+
+    <!-- Notifications -->
+    <string name="channel_alert_silent_name">空间提醒（静默）</string>
+    <string name="channel_alert_silent_desc">仅通知，不震动</string>
+    <string name="channel_alert_vibrate_name">空间提醒（震动）</string>
+    <string name="channel_alert_vibrate_desc">通知并震动</string>
+    <string name="channel_alarm_name">空间闹钟</string>
+    <string name="channel_alarm_desc">进入目标范围时响铃与振动</string>
+    <string name="notif_title">空间提醒</string>
+    <string name="notif_title_alarm">空间闹钟</string>
+    <string name="notif_dismiss">关闭闹钟</string>
+    <string name="notif_range_entered">已进入 %1$s 提醒范围</string>
+    <string name="notif_range_entered_generic">已进入提醒范围</string>
+
+    <!-- System / errors -->
+    <string name="toast_no_background_permission_needed">当前系统版本不需要单独申请后台定位</string>
+    <string name="toast_grant_precise_first">请先授予精确定位权限（“使用精确位置”）</string>
+    <string name="toast_choose_allow_all_time">请在“权限 → 位置”中选择“始终允许”</string>
+    <string name="toast_no_notification_permission_needed">当前系统版本不需要单独申请通知权限</string>
+    <string name="toast_cannot_open_settings">无法打开系统设置页</string>
+    <!-- Trigger / edit -->
+    <string name="label_trigger">循环</string>
+    <string name="trigger_once">一次性</string>
+    <string name="trigger_repeat">重复</string>
+    <string name="trigger_once_hint">提醒后自动删除</string>
+    <string name="trigger_repeat_hint">每次进入范围都会提醒</string>
+    <string name="action_edit">编辑</string>
+    <string name="action_save">保存</string>
+    <string name="action_saving">保存中…</string>
+    <string name="edit_alarm_title">编辑空间闹钟</string>
+    <string name="edit_alarm_subtitle">调整设置</string>
+    <string name="edit_radius_changed_hint">保存后会按新设置重新注册地理围栏。</string>
+    <string name="state_enabled">已启用</string>
+    <string name="state_disabled">已停用</string>
+    <string name="settings_tutorial">教程</string>
+    <string name="settings_tutorial_desc">重新查看使用教程</string>
+    <string name="tutorial_title">使用教程</string>
+    <string name="tutorial_subtitle">快速上手</string>
+    <string name="tutorial_skip">跳过</string>
+    <string name="tutorial_next">下一步</string>
+    <string name="tutorial_prev">上一步</string>
+    <string name="tutorial_start">开始使用</string>
+    <string name="tutorial_step1_title">从高德分享</string>
+    <string name="tutorial_step1_body">在高德地图里找到目标地点（或长按地图选点），点击分享并选择本应用。
+
+也可以在高德里复制地点后粘贴到这里，多行文本也可以。</string>
+    <string name="tutorial_step2_title">设置空间闹钟</string>
+    <string name="tutorial_step2_body">选择提前多远提醒（100 米到 2 公里，也可以自定义），再选择提醒方式：
+
+· 仅通知
+· 通知 + 震动
+· 通知 + 震动 + 闹铃
+
+一次性提醒在触发后自动删除；重复提醒每次进入范围都会触发。</string>
+    <string name="tutorial_step3_title">授予权限</string>
+    <string name="tutorial_step3_body">注册地理围栏需要精确定位；Android 10 及以上还需要“始终允许”，App 退到后台后才能触发。
+
+显示提醒通知需要通知权限。</string>
+    <string name="tutorial_step4_title">等待触发</string>
+    <string name="tutorial_step4_body">接近目标范围时，由系统地理围栏唤醒 App 提醒你 —— 不需要保持 App 打开，也不会后台轮询定位。
+
+触发时间由系统决定，可能延迟一两分钟。</string>
+    <string name="tutorial_footer">随时可以在「设置 → 教程」里重新查看本教程。</string>
+    <string name="settings_location_refresh">定位刷新</string>
+    <string name="settings_location_refresh_desc">地图更新当前位置的频率</string>
+    <string name="location_refresh_title">定位刷新</string>
+    <string name="location_refresh_subtitle">仅前台地图</string>
+    <string name="location_refresh_seconds">%1$d 秒</string>
+    <string name="location_refresh_hint">只在打开地图时生效。后台提醒由系统地理围栏负责，不会主动轮询定位。</string>
+</resources>

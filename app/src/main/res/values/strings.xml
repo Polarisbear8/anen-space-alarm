@@ -1,0 +1,307 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">ANEN Space Alarm</string>
+    <string name="app_title">ANEN / SPATIAL ALARM</string>
+    <string name="app_subtitle">SPATIAL REMINDER TERMINAL</string>
+    <string name="app_description">A lightweight spatial reminder app. It alerts you when you approach a place you chose.</string>
+
+    <!-- Common actions -->
+    <string name="action_back">BACK</string>
+    <string name="action_cancel">CANCEL</string>
+    <string name="action_ok">OK</string>
+    <string name="action_retry">RETRY</string>
+    <string name="action_exit">EXIT</string>
+    <string name="action_show">SHOW</string>
+    <string name="action_hide">HIDE</string>
+    <string name="action_grant">GRANT</string>
+    <string name="action_copy_debug">Copy debug information</string>
+    <string name="action_copied">Copied</string>
+
+    <!-- Labels -->
+    <string name="label_target">TARGET</string>
+    <string name="label_name">NAME</string>
+    <string name="label_address">ADDR</string>
+    <string name="label_latitude">LAT</string>
+    <string name="label_longitude">LNG</string>
+    <string name="label_source">SOURCE</string>
+    <string name="label_status">STATUS</string>
+    <string name="label_radius">RADIUS</string>
+    <string name="label_range">RANGE</string>
+    <string name="label_distance">DIST</string>
+    <string name="label_mode">MODE</string>
+    <string name="label_message">MSG</string>
+
+    <!-- Status -->
+    <string name="status_armed">MONITORING</string>
+    <string name="status_triggered">TRIGGERED</string>
+    <string name="status_disabled">DISABLED</string>
+    <string name="status_standby">STANDBY</string>
+    <string name="status_in_range">IN RANGE</string>
+    <string name="status_approaching">APPROACHING</string>
+    <string name="mode_notification">Notification only</string>
+    <string name="mode_vibration">Notification + vibration</string>
+    <string name="mode_alarm">Notification + vibration + alarm</string>
+
+    <!-- Home -->
+    <string name="home_no_target_title">NO ACTIVE TARGET</string>
+    <string name="home_no_target_empty">Share a place from AMap, or tap ARM NEW to create a space alarm.</string>
+    <string name="home_no_target_disabled">No enabled space alarm right now (%1$d saved).</string>
+    <string name="home_alarms">ALARMS %1$d</string>
+    <string name="home_arm_new">+ ARM NEW</string>
+    <string name="home_recenter">Recenter</string>
+    <string name="home_refresh_location">Refresh location</string>
+    <string name="warning_no_geofence">This device has no usable system geofencing service (Google Play services missing)</string>
+    <string name="warning_need_precise">Space alarms need precise location. Please choose “Precise location”.</string>
+    <string name="warning_need_background">“Allow all the time” is required, otherwise alarms will not fire in the background.</string>
+
+    <!-- Place input -->
+    <string name="new_alarm_title">NEW SPACE ALARM</string>
+    <string name="place_input_subtitle">place input</string>
+    <string name="configure_subtitle">configure trigger</string>
+    <string name="section_paste_link">PASTE AMAP LINK</string>
+    <string name="paste_link_hint">Paste what you copied from the AMap app (multi-line text with name / address is fine), e.g. https://surl.amap.com/gS24Bk2ddZ6</string>
+    <string name="action_resolve">RESOLVE</string>
+    <string name="action_back_to_map">BACK TO MAP</string>
+
+    <!-- Create reminder -->
+    <string name="section_range">RANGE</string>
+    <string name="section_alert_mode">ALERT MODE</string>
+    <string name="section_message">MESSAGE</string>
+    <string name="radius_hint">50 - 50000 m; straight-line distance, not road distance. Small ranges (e.g. 100 m) may be affected by location error.</string>
+    <string name="radius_custom">Custom</string>
+    <string name="radius_custom_placeholder">meters</string>
+    <string name="alert_notification_desc">Post a notification after entering the range</string>
+    <string name="alert_vibration_desc">Notification with a vibration burst</string>
+    <string name="alert_alarm_desc">Full-screen ringing + vibration after entering the range</string>
+    <string name="action_arm">ENABLE</string>
+    <string name="action_arming">ENABLING…</string>
+    <string name="coordinate_internal_note">（internal model uses WGS84）</string>
+    <string name="system_status_ready">System status: READY</string>
+    <string name="system_status_invalid_range">System status: INVALID RANGE</string>
+    <string name="default_message">Almost there</string>
+
+    <!-- Share -->
+    <string name="share_subtitle">share target</string>
+    <string name="resolving">Resolving shared place…</string>
+    <string name="section_target_location">TARGET LOCATION</string>
+    <string name="action_use_this_location">USE THIS LOCATION</string>
+    <string name="section_manual_input">MANUAL INPUT</string>
+    <string name="manual_input_hint">Paste coordinates, e.g. 113.268932,23.081058 (AMap coordinates default to GCJ02)</string>
+    <string name="manual_name_placeholder">Place name (optional)</string>
+    <string name="manual_coords_placeholder">113.268932,23.081058</string>
+    <string name="action_use_this_coordinate">USE THIS COORDINATE</string>
+    <string name="manual_coords_invalid">Unrecognized coordinate format</string>
+    <string name="section_debug_payload">DEBUG SHARE PAYLOAD</string>
+    <string name="raw_share_intent">RAW SHARE INTENT</string>
+    <string name="raw_share_intent_hidden">RAW SHARE INTENT (HIDDEN)</string>
+    <string name="empty_payload">(empty)</string>
+
+    <!-- Resolve failures -->
+    <string name="resolve_failed_empty">Nothing to resolve: the share contained no text, link or clipboard data.</string>
+    <string name="resolve_failed_no_link">No AMap link found, and no usable coordinates.</string>
+    <string name="resolve_failed_poi_only">The link only carries an AMap POI id (e.g. amap.com/place/B00140C1IU) and no coordinates could be read from the page. Try a share link that contains coordinates, or enter coordinates manually.</string>
+    <string name="resolve_failed_fetch">Tried to resolve the AMap link online but no coordinates were found (the page may block bots, or the link has expired).</string>
+
+    <!-- Arm results -->
+    <string name="arm_blocked_inside_range">Cannot create the alarm: you are already inside the target range.\nCurrent distance: about %1$s　Set range: %2$s\nPlease leave the range before arming this alarm.</string>
+    <string name="arm_blocked_no_location">Cannot create the alarm: current location is unavailable. Please turn on location and retry.</string>
+    <string name="arm_blocked_permissions">Cannot create the alarm: precise location and “Allow all the time” background location are required.</string>
+    <string name="arm_saved_disabled">Saved as disabled: %1$s. You can enable it later in the alarm list.</string>
+    <string name="arm_limit_reached">System geofence limit reached (%1$d). Delete some space alarms first.</string>
+    <string name="arm_registration_failed">Geofence registration failed. Please check the system location service.</string>
+    <string name="arm_activated">Space alarm activated</string>
+
+    <!-- Alarm screen -->
+    <string name="alarm_screen_title">SPACE ALARM</string>
+    <string name="alarm_dismiss">Dismiss</string>
+    <string name="alarm_in_range_hint">Entered the alert range</string>
+    <string name="alarm_target_placeholder">Target place</string>
+
+    <!-- Reminder list -->
+    <string name="alarms_title">SPACE ALARMS</string>
+    <string name="alarms_subtitle">%1$d record(s)</string>
+    <string name="alarms_empty">No space alarms yet.</string>
+    <string name="action_rearm">RE-ARM</string>
+    <string name="action_delete">DEL</string>
+
+    <!-- Settings -->
+    <string name="settings_title">SETTINGS</string>
+    <string name="settings_subtitle">preferences &amp; system</string>
+    <string name="settings_section_items">ITEMS</string>
+    <string name="settings_permission_check">Permission Check</string>
+    <string name="settings_permission_check_desc">View current permission status and open system settings</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_desc">Chinese / English</string>
+    <string name="settings_developer_mode">Developer Mode</string>
+    <string name="settings_developer_mode_desc">Show debug information and test helpers</string>
+    <string name="settings_about">About</string>
+    <string name="settings_about_desc">Version and open-source acknowledgements</string>
+    <string name="settings_developer_section">DEVELOPER</string>
+    <string name="dev_mode_on">ON</string>
+    <string name="dev_mode_off">OFF</string>
+
+    <!-- Permission check -->
+    <string name="permission_check_title">PERMISSION CHECK</string>
+    <string name="permission_check_subtitle">status &amp; system settings</string>
+    <string name="permission_location">Location</string>
+    <string name="permission_location_desc">Required to read your position and to register geofences</string>
+    <string name="permission_precise">Precise Location</string>
+    <string name="permission_precise_desc">Geofencing requires ACCESS_FINE_LOCATION; “Approximate” is not enough</string>
+    <string name="permission_background">Background Location</string>
+    <string name="permission_background_desc">Android 10+ requires “Allow all the time”, otherwise alarms will not fire in the background</string>
+    <string name="permission_notifications">Notifications</string>
+    <string name="permission_notifications_desc">Required to show the alert notification (Android 13+)</string>
+    <string name="permission_fullscreen">Full-screen notifications</string>
+    <string name="permission_fullscreen_desc">Shows the alarm screen on the lock screen (Android 14+; the system still has the final say)</string>
+    <string name="permission_granted">Granted</string>
+    <string name="permission_not_granted">Not granted</string>
+    <string name="permission_geofence_ready">Geofence ready</string>
+    <string name="action_open_system_settings">Open system settings</string>
+    <string name="permission_request_hint">Permissions are requested by the features themselves; this page only shows the current status.</string>
+
+    <!-- Language -->
+    <string name="language_title">LANGUAGE</string>
+    <string name="language_subtitle">follow system / 中文 / English</string>
+    <string name="language_system">Follow system</string>
+    <string name="language_chinese">中文</string>
+    <string name="language_english">English</string>
+    <string name="language_hint">The choice is stored locally and applied immediately. It does not touch your alarms or geofences.</string>
+
+    <!-- About -->
+    <string name="about_title">ABOUT</string>
+    <string name="about_subtitle">anen space alarm</string>
+    <string name="about_version_section">VERSION</string>
+    <string name="about_app">ANEN Space Alarm</string>
+    <string name="about_version">%1$s (%2$d)</string>
+    <string name="about_acknowledgements">ACKNOWLEDGEMENTS</string>
+    <string name="about_notes">NOTES</string>
+    <string name="about_notes_1">The parsing, coordinate conversion, geofencing and alerting logic in this project is implemented from scratch; the open-source projects above were referenced for ideas and public documentation only.</string>
+    <string name="about_notes_3">Map data copyright belongs to the OpenStreetMap contributors.</string>
+    <string name="about_open_source_spirit">OPEN-SOURCE SPIRIT MATTERS.</string>
+    <string name="about_open_source_note">Respect open source. Thanks to everyone who publishes code, docs and engineering experience.</string>
+
+    <!-- Easter egg: unlocked by tapping the version row 3 times in About -->
+    <string name="easter_egg_dialog_title">EASTER EGG</string>
+    <string name="easter_egg_dialog_message">You found the author\'s little easter egg ~ go take a look at your alarm list.</string>
+    <string name="easter_egg_message">The author\'s pick for the best Guilin rice noodles. Worth a try. Welcome to Guilin!</string>
+    <string name="credit_maplibre">Map rendering / vector tile layers (used by this project)</string>
+    <string name="credit_geoshare">Referenced for map-sharing / URL resolving ideas.</string>
+    <string name="credit_talarm">Referenced for alarm-related implementation ideas.</string>
+    <string name="credit_brutus">Referenced for Android implementation ideas.</string>
+    <string name="credit_osm">Referenced as part of the geographic data / mapping ecosystem.</string>
+    <string name="credit_openfreemap">Development-time vector tile hosting for the map style.</string>
+
+    <!-- Developer sections -->
+    <string name="dev_section_system_status">APP SYSTEM STATUS</string>
+    <string name="dev_section_share">SHARE DEBUG</string>
+    <string name="dev_section_resolver">AMAP RESOLVER DEBUG</string>
+    <string name="dev_section_location">LOCATION DEBUG</string>
+    <string name="dev_section_geofence">GEOFENCE DEBUG</string>
+    <string name="dev_section_alarm">ALARM DEBUG</string>
+    <string name="dev_section_map">MAP DEBUG</string>
+    <string name="dev_section_reminder">REMINDER DEBUG</string>
+    <string name="dev_label_version">Version</string>
+    <string name="dev_label_package">Package</string>
+    <string name="dev_label_android">Android</string>
+    <string name="dev_label_sdk">SDK</string>
+    <string name="dev_label_device">Device</string>
+    <string name="dev_label_latitude">Latitude</string>
+    <string name="dev_label_longitude">Longitude</string>
+    <string name="dev_label_accuracy">Accuracy</string>
+    <string name="dev_label_coordinate_system">Coordinate</string>
+    <string name="dev_label_provider">Provider</string>
+    <string name="dev_label_timestamp">Timestamp</string>
+    <string name="dev_label_map_engine">Map engine</string>
+    <string name="dev_label_map_source">Map source</string>
+    <string name="dev_label_geofence_engine">Geofence engine</string>
+    <string name="dev_label_active_geofences">Active geofences</string>
+    <string name="dev_label_reminders">Reminders</string>
+    <string name="dev_label_active_reminders">Active</string>
+    <string name="dev_label_no_data">No data yet</string>
+    <string name="dev_label_notification_channel">Alert channel</string>
+    <string name="dev_label_alarm_channel">Alarm channel</string>
+    <string name="dev_label_fullscreen">Full-screen intent</string>
+    <string name="dev_label_location_updates">Foreground map updates</string>
+    <string name="dev_value_not_available">n/a</string>
+    <string name="dev_map_engine_value">MapLibre Native</string>
+    <string name="dev_geofence_engine_value">Google Play services GeofencingClient</string>
+    <string name="dev_location_updates_value">15 s / balanced power</string>
+    <string name="dev_reminder_state">State</string>
+    <string name="dev_reminder_id">Reminder id</string>
+    <string name="dev_reminder_target">Target</string>
+    <string name="dev_reminder_radius">Radius</string>
+    <string name="dev_reminder_alert_mode">Alert mode</string>
+    <string name="dev_value_yes">yes</string>
+    <string name="dev_value_no">no</string>
+
+    <!-- Notifications -->
+    <string name="channel_alert_silent_name">Space alert (silent)</string>
+    <string name="channel_alert_silent_desc">Notification only, no vibration</string>
+    <string name="channel_alert_vibrate_name">Space alert (vibrate)</string>
+    <string name="channel_alert_vibrate_desc">Notification with vibration</string>
+    <string name="channel_alarm_name">Space alarm</string>
+    <string name="channel_alarm_desc">Ring and vibrate when entering the target range</string>
+    <string name="notif_title">Space alert</string>
+    <string name="notif_title_alarm">Space alarm</string>
+    <string name="notif_dismiss">Dismiss alarm</string>
+    <string name="notif_range_entered">Entered the %1$s alert range</string>
+    <string name="notif_range_entered_generic">Entered the alert range</string>
+
+    <!-- System / errors -->
+    <string name="toast_no_background_permission_needed">This Android version does not need a separate background location permission</string>
+    <string name="toast_grant_precise_first">Please grant precise location first (“Precise location”)</string>
+    <string name="toast_choose_allow_all_time">Choose “Allow all the time” under Permissions → Location</string>
+    <string name="toast_no_notification_permission_needed">This Android version does not need a separate notification permission</string>
+    <string name="toast_cannot_open_settings">Cannot open system settings</string>
+
+    <!-- Trigger / edit -->
+    <string name="label_trigger">REPEAT</string>
+    <string name="trigger_once">One-shot</string>
+    <string name="trigger_repeat">Repeat</string>
+    <string name="trigger_once_hint">Deleted automatically after alerting</string>
+    <string name="trigger_repeat_hint">Alerts every time you enter the range</string>
+    <string name="action_edit">EDIT</string>
+    <string name="action_save">SAVE</string>
+    <string name="action_saving">SAVING…</string>
+    <string name="edit_alarm_title">EDIT SPACE ALARM</string>
+    <string name="edit_alarm_subtitle">adjust settings</string>
+    <string name="edit_radius_changed_hint">The geofence is re-registered with the new settings.</string>
+    <string name="state_enabled">ENABLED</string>
+    <string name="state_disabled">DISABLED</string>
+    <string name="settings_tutorial">Tutorial</string>
+    <string name="settings_tutorial_desc">Replay the getting-started guide</string>
+    <string name="tutorial_title">HOW IT WORKS</string>
+    <string name="tutorial_subtitle">getting started</string>
+    <string name="tutorial_skip">SKIP</string>
+    <string name="tutorial_next">NEXT</string>
+    <string name="tutorial_prev">BACK</string>
+    <string name="tutorial_start">START</string>
+    <string name="tutorial_step1_title">SHARE FROM AMAP</string>
+    <string name="tutorial_step1_body">Open the AMap app, find a place (or long-press the map), tap Share and choose this app.
+
+You can also copy the place in AMap and paste it here — multi-line text is fine.</string>
+    <string name="tutorial_step2_title">CONFIGURE THE ALARM</string>
+    <string name="tutorial_step2_body">Pick how far ahead you want to be alerted (100 m to 2 km, or a custom value), then choose the alert style:
+
+· Notification only
+· Notification + vibration
+· Notification + vibration + alarm
+
+One-shot alarms are deleted after alerting; repeating alarms fire on every entry.</string>
+    <string name="tutorial_step3_title">GRANT PERMISSIONS</string>
+    <string name="tutorial_step3_body">Precise location is required to register a geofence, and Android 10+ also needs “Allow all the time” so the alarm can fire while the app is in the background.
+
+Notification permission is needed to show the alert.</string>
+    <string name="tutorial_step4_title">WAIT FOR THE TRIGGER</string>
+    <string name="tutorial_step4_body">The system geofence wakes the app up when you approach the target — no need to keep the app open, and no background GPS polling.
+
+Response time is decided by the system and may be delayed by a minute or two.</string>
+    <string name="tutorial_footer">You can replay this guide any time from Settings → Tutorial.</string>
+    <string name="settings_location_refresh">Location refresh</string>
+    <string name="settings_location_refresh_desc">How often the map updates your position</string>
+    <string name="location_refresh_title">LOCATION REFRESH</string>
+    <string name="location_refresh_subtitle">foreground map only</string>
+    <string name="location_refresh_seconds">%1$d s</string>
+    <string name="location_refresh_hint">Only applies while the map is on screen. Background alerts are handled by the system geofence and never poll for location.</string>
+</resources>

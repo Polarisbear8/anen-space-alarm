@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.Anen" parent="@android:style/Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/anen_background</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <style name="Theme.Anen.Alarm" parent="Theme.Anen">
+        <item name="android:windowShowWallpaper">false</item>
+        <item name="android:windowBackground">@color/anen_background</item>
+    </style>
+</resources>
