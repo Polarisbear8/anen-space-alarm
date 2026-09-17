@@ -14,6 +14,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.anen.spacealarm.AppContainer
+import com.anen.spacealarm.R
 import com.anen.spacealarm.location.DistanceCalculator
 import com.anen.spacealarm.ui.AlarmScreen
 import com.anen.spacealarm.ui.theme.AnenTheme
@@ -46,7 +47,7 @@ class AlarmActivity : ComponentActivity() {
                 BackHandler { dismiss() }
                 AlarmScreen(
                     placeName = placeName,
-                    rangeText = if (radius > 0f) DistanceCalculator.formatRadius(radius) else "已进入范围",
+                    rangeText = if (radius > 0f) DistanceCalculator.formatRadius(radius) else getString(R.string.notif_range_entered_generic),
                     message = message,
                     onDismiss = { dismiss() }
                 )

@@ -164,7 +164,12 @@ private fun ShareRoot(content: ShareContent, payload: String) {
             developerMode = developerMode,
             onUseLocation = { locationConfirmed = true },
             onManualInput = { name, coordinates, system ->
-                val place = ManualPlaceParser.parse(name, coordinates, system)
+                val place = ManualPlaceParser.parse(
+                    name,
+                    coordinates,
+                    system,
+                    context.getString(R.string.place_unnamed)
+                )
                 if (place == null) {
                     Toast.makeText(context, R.string.manual_coords_invalid, Toast.LENGTH_SHORT).show()
                 } else {

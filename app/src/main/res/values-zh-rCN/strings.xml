@@ -92,6 +92,7 @@
     <string name="manual_coords_placeholder">113.268932,23.081058</string>
     <string name="action_use_this_coordinate">使用该坐标</string>
     <string name="manual_coords_invalid">坐标格式无法识别</string>
+    <string name="place_unnamed">未命名地点</string>
     <string name="section_debug_payload">调试：原始分享载荷</string>
     <string name="raw_share_intent">原始分享 Intent</string>
     <string name="raw_share_intent_hidden">原始分享 Intent（已隐藏）</string>
@@ -211,7 +212,7 @@
     <string name="dev_label_longitude">经度</string>
     <string name="dev_label_accuracy">精度</string>
     <string name="dev_label_coordinate_system">坐标系</string>
-    <string name="dev_label_provider">Provider</string>
+    <string name="dev_label_provider">提供方</string>
     <string name="dev_label_timestamp">时间戳</string>
     <string name="dev_label_map_engine">地图引擎</string>
     <string name="dev_label_map_source">地图数据源</string>
@@ -227,7 +228,6 @@
     <string name="dev_value_not_available">不可用</string>
     <string name="dev_map_engine_value">MapLibre Native</string>
     <string name="dev_geofence_engine_value">Google Play services GeofencingClient</string>
-    <string name="dev_location_updates_value">15 秒 / 低功耗</string>
     <string name="dev_reminder_state">状态</string>
     <string name="dev_reminder_id">提醒 ID</string>
     <string name="dev_reminder_target">目标</string>

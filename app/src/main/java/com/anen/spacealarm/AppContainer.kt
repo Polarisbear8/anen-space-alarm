@@ -95,7 +95,11 @@ object AppContainer {
      * 解析结束会立即移除并销毁，不长期持有 Activity。
      */
     fun mapResolver(context: Context): MapResolver =
-        AMapResolver(httpClient, AMapWebViewResolver(context))
+        AMapResolver(
+            client = httpClient,
+            webViewResolver = AMapWebViewResolver(context),
+            fallbackName = context.getString(R.string.place_unnamed)
+        )
 
     fun geofenceEngine(context: Context): GeofenceEngine = GoogleGeofenceEngine(context)
 

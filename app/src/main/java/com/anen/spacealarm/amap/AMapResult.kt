@@ -18,8 +18,8 @@ internal data class AMapLocation(
     val poiId: String?,
     val via: String
 ) {
-    fun toPlace(): Place = Place.of(
-        name = name?.takeIf { it.isNotBlank() } ?: "未知地点",
+    fun toPlace(fallbackName: String): Place = Place.of(
+        name = name?.takeIf { it.isNotBlank() } ?: fallbackName,
         address = address?.takeIf { it.isNotBlank() },
         latitude = latitude,
         longitude = longitude,

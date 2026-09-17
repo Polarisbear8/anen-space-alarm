@@ -92,6 +92,7 @@
     <string name="manual_coords_placeholder">113.268932,23.081058</string>
     <string name="action_use_this_coordinate">USE THIS COORDINATE</string>
     <string name="manual_coords_invalid">Unrecognized coordinate format</string>
+    <string name="place_unnamed">Unnamed place</string>
     <string name="section_debug_payload">DEBUG SHARE PAYLOAD</string>
     <string name="raw_share_intent">RAW SHARE INTENT</string>
     <string name="raw_share_intent_hidden">RAW SHARE INTENT (HIDDEN)</string>
@@ -227,7 +228,6 @@
     <string name="dev_value_not_available">n/a</string>
     <string name="dev_map_engine_value">MapLibre Native</string>
     <string name="dev_geofence_engine_value">Google Play services GeofencingClient</string>
-    <string name="dev_location_updates_value">15 s / balanced power</string>
     <string name="dev_reminder_state">State</string>
     <string name="dev_reminder_id">Reminder id</string>
     <string name="dev_reminder_target">Target</string>

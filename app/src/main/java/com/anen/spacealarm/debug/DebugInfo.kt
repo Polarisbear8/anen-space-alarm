@@ -87,7 +87,13 @@ object DebugInfo {
     }
 
     fun locationUpdatesSection(context: Context): String =
-        line(context.getString(R.string.dev_label_location_updates), context.getString(R.string.dev_location_updates_value))
+        line(
+            context.getString(R.string.dev_label_location_updates),
+            context.getString(
+                R.string.location_refresh_seconds,
+                AppPreferences.locationIntervalSeconds(context)
+            )
+        )
 
     fun reminderSection(context: Context, reminders: List<Reminder>): String = buildString {
         appendLine(line(context.getString(R.string.dev_label_reminders), reminders.size.toString()))

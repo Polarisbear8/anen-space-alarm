@@ -22,7 +22,9 @@ import okhttp3.OkHttpClient
 class AMapResolver(
     private val client: OkHttpClient,
     private val webViewResolver: AMapWebViewResolver? = null,
-    private val trustedHosts: List<String> = AMapHosts.HOSTS
+    private val trustedHosts: List<String> = AMapHosts.HOSTS,
+    /** 解析不到地点名时使用的兜底名称（由调用方传入本地化文案）。 */
+    private val fallbackName: String = "Unnamed place"
 ) : MapResolver {
 
     private val redirectResolver = AMapRedirectResolver(client, trustedHosts)
@@ -149,7 +151,7 @@ class AMapResolver(
     }
 
     private fun success(location: AMapLocation, level: String, trace: List<String>): ResolveResult {
-        val place = location.toPlace()
+                val place = location.toPlace(fallbackName)
         Log.d(TAG, "level=$level result=coordinate lat=${location.latitude} lon=${location.longitude}")
         Log.d(TAG, "result=success source=${place.source} coordinateSystem=${place.coordinateSystem}")
         return ResolveResult.Success(place, location.via, successReport(location, level, trace))
