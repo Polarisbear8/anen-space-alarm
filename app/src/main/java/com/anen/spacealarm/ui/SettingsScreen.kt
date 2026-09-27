@@ -56,7 +56,9 @@ fun SettingsScreen(
     developerMode: Boolean,
     honorFamily: Boolean,
     batteryOptimizationExempt: Boolean,
+    forceNativeProvider: Boolean,
     onToggleDeveloperMode: (Boolean) -> Unit,
+    onToggleForceNativeProvider: (Boolean) -> Unit,
     onOpenPermissionCheck: () -> Unit,
     onOpenLanguage: () -> Unit,
     onOpenTutorial: () -> Unit,
@@ -144,6 +146,30 @@ fun SettingsScreen(
 
         if (developerMode) {
             TermSection("03", stringResource(R.string.settings_developer_section))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    TermLabel(stringResource(R.string.dev_force_native), color = AnenText)
+                    TermHint(stringResource(R.string.dev_force_native_desc))
+                }
+                TermHint(
+                    stringResource(if (forceNativeProvider) R.string.dev_mode_on else R.string.dev_mode_off),
+                    color = if (forceNativeProvider) AnenOrange else AnenTextDim
+                )
+                Switch(
+                    checked = forceNativeProvider,
+                    onCheckedChange = onToggleForceNativeProvider,
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = AnenOrange,
+                        checkedTrackColor = AnenOrangeDim
+                    ),
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
             DebugBlock(
                 title = stringResource(R.string.dev_section_compat),
                 content = DebugInfo.compatSection(context)

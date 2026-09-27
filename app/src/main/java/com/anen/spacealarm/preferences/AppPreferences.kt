@@ -14,6 +14,7 @@ object AppPreferences {
     private const val KEY_LAST_SHARE_DEBUG = "last_share_debug"
     private const val KEY_LAST_RESOLVE_DEBUG = "last_resolve_debug"
     private const val KEY_TUTORIAL_SEEN = "tutorial_seen"
+    private const val KEY_FORCE_NATIVE_PROVIDER = "force_native_provider"
     private const val KEY_LOCATION_INTERVAL = "location_interval_seconds"
     private const val KEY_GEOFENCE_LAST_TRANSITION = "geofence_last_transition"
     private const val KEY_GEOFENCE_LAST_TIME = "geofence_last_time"
@@ -51,6 +52,14 @@ object AppPreferences {
 
     fun setDeveloperMode(context: Context, enabled: Boolean) {
         prefs(context).edit().putBoolean(KEY_DEVELOPER_MODE, enabled).apply()
+    }
+
+    /** 测试辅助：强制使用 framework LocationManager，而不是 GMS Fused。 */
+    fun forceNativeProvider(context: Context): Boolean =
+        prefs(context).getBoolean(KEY_FORCE_NATIVE_PROVIDER, false)
+
+    fun setForceNativeProvider(context: Context, enabled: Boolean) {
+        prefs(context).edit().putBoolean(KEY_FORCE_NATIVE_PROVIDER, enabled).apply()
     }
 
     /** 最近一次分享载荷（供开发者模式查看/复制） */

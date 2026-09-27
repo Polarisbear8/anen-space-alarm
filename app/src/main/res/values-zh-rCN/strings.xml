@@ -209,6 +209,8 @@
     <!-- Developer sections -->
     <string name="dev_section_compat">运行环境</string>
     <string name="dev_section_location_service">定位服务</string>
+    <string name="dev_force_native">强制 Native 定位</string>
+    <string name="dev_force_native_desc">使用系统 LocationManager 而非 GMS Fused（仅测试）。</string>
     <string name="dev_label_service">服务</string>
     <string name="dev_value_running">运行中</string>
     <string name="dev_value_stopped">已停止</string>

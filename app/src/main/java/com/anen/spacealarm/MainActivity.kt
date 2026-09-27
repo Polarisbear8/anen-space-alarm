@@ -137,6 +137,7 @@ private fun AnenRoot() {
     var error by remember { mutableStateOf<String?>(null) }
     var geofenceAvailable by remember { mutableStateOf(geofenceEngine.isAvailable()) }
     var developerMode by remember { mutableStateOf(AppPreferences.developerMode(context)) }
+    var forceNativeProvider by remember { mutableStateOf(AppPreferences.forceNativeProvider(context)) }
     var languageTag by remember { mutableStateOf(AppPreferences.language(context)) }
     var locationIntervalSeconds by remember { mutableStateOf(AppPreferences.locationIntervalSeconds(context)) }
     var easterEggFound by remember { mutableStateOf(false) }
@@ -445,9 +446,14 @@ private fun AnenRoot() {
             developerMode = developerMode,
             honorFamily = PermissionManager.isHonorFamily(),
             batteryOptimizationExempt = DeviceCompat.isBatteryOptimizationExempt(context),
+            forceNativeProvider = forceNativeProvider,
             onToggleDeveloperMode = { enabled ->
                 AppPreferences.setDeveloperMode(context, enabled)
                 developerMode = enabled
+            },
+            onToggleForceNativeProvider = { enabled ->
+                AppPreferences.setForceNativeProvider(context, enabled)
+                forceNativeProvider = enabled
             },
             onOpenPermissionCheck = { screen = Screen.PermissionCheck },
             onOpenLanguage = { screen = Screen.Language },

@@ -7,6 +7,7 @@ import android.content.pm.ServiceInfo
 import android.location.Location
 import android.os.Build
 import android.os.IBinder
+import android.os.SystemClock
 import android.util.Log
 import androidx.core.content.ContextCompat
 import com.anen.spacealarm.AppContainer
@@ -148,11 +149,14 @@ class LocationForegroundService : Service() {
             modeFlow.value = nextMode
         }
 
+        val ageMs = (SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos) / 1_000_000L
         Log.d(
             TAG,
             "LOCATION CALLBACK lat=${location.latitude} lon=${location.longitude} " +
                 "accuracy=${location.accuracy} provider=${location.provider} " +
-                "elapsedRealtimeNanos=${location.elapsedRealtimeNanos} distance=${"%.1f".format(distance)} " +
+                "elapsedRealtimeNanos=${location.elapsedRealtimeNanos} ageMs=$ageMs " +
+                "interval=${AlarmLocationRuntime.status.value.requestedIntervalMillis} " +
+                "distance=${"%.1f".format(distance)} " +
                 "closing=${"%.2f".format(previousSpeed)} eta=${eta?.let { "%.0f".format(it) } ?: "-"} mode=${modeFlow.value}"
         )
 

@@ -209,6 +209,8 @@
     <!-- Developer sections -->
     <string name="dev_section_compat">RUNTIME COMPAT</string>
     <string name="dev_section_location_service">LOCATION SERVICE</string>
+    <string name="dev_force_native">Force native provider</string>
+    <string name="dev_force_native_desc">Use framework LocationManager instead of GMS Fused (test only).</string>
     <string name="dev_label_service">Service</string>
     <string name="dev_value_running">RUNNING</string>
     <string name="dev_value_stopped">STOPPED</string>
