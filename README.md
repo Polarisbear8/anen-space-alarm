@@ -1,6 +1,6 @@
-# 阿能的空间闹钟 · ANEN Space Alarm
+# ANENG 空间闹钟 · ANENG Space Alarm
 
-> 一个轻量、事件驱动的 Android 空间提醒工具：**从高德地图分享地点，接近目标范围时提醒你。**
+> 一个自适应后台定位的 Android 空间提醒工具：**从高德地图分享地点，接近目标范围时提醒你。**
 
 本app灵感来自于本人坐大巴又双叒叕坐过站。该应用旨在实现以下功能：
 
@@ -14,7 +14,7 @@
 
 ## 下载安装
 
-### 👉 [点这里直接下载 APK](https://github.com/Polarisbear8/anen-space-alarm/releases/download/v1.0.1/anen-space-alarm-1.0.1-debug.apk)（约 55 MB）
+### 👉 [点这里直接下载 APK](https://github.com/Polarisbear8/anen-space-alarm/releases/download/v1.0.2/anen-space-alarm-1.0.2-debug.apk)（约 55 MB）
 
 其他版本见 [Releases 页面](https://github.com/Polarisbear8/anen-space-alarm/releases)（手机浏览器里附件藏在折叠的 **Assets** 里，点开就能看到 `.apk`）。
 
@@ -22,7 +22,7 @@
 
 1. 点上面的链接下载 APK，浏览器提示风险时选「**仍要下载**」
 2. 打开下载好的文件安装；系统提示「**未知来源应用**」时选允许，Play 保护机制提示时选「**仍要安装**」
-3. 打开 App → 按教程授予「**精确定位**」与「**始终允许**」后台定位（Android 10+ 必须，否则退到后台不会触发）→ 之后从高德地图分享地点给「阿能的空间闹钟」
+3. 打开 App → 按教程授予「**精确定位**」与「**始终允许**」后台定位（Android 10+ 必须，否则退到后台不会触发）→ 之后从高德地图分享地点给「ANENG」
 
 > 这是 debug 签名包，仅供体验与测试。想自己编译见 [构建](#构建)。
 
@@ -32,7 +32,9 @@
 - **三种提醒方式**：仅通知 · 通知 + 震动 · 通知 + 震动 + 闹铃
 - **一次性 / 循环**：一次性在提醒后自动删除，循环每次进入范围都会触发
 - **地图为主界面**：全部目标、触发范围圆、到目标的直线与实时距离；已启用橙色、已停用灰色
-- **低功耗**：后台完全交给系统地理围栏（Geofence），**没有 GPS 轮询、没有常驻前台服务**
+- **自适应后台定位**：启用闹钟后由 **Location 前台服务**在后台 / 锁屏持续定位，按「距离 + 接近速度 / ETA」在 FAR / APPROACH / CRITICAL 间自适应调整频率（约 60s / 15s / 4s），进入范围立即触发后自动停止服务
+- **系统地理围栏兜底**：Geofence 保留为低功耗 fallback；触发统一走原子抢占，前台服务与围栏不会重复提醒
+- **定位实现可切换**：优先 GMS `FusedLocationProvider`，无 GMS 时回退到系统 `LocationManager`
 - **中英双语**：跟随系统，也可在设置里手动切换
 - **开发者模式**（默认关闭）：分级解析日志、App 系统状态、一键复制调试报告
 - **使用教程**：首次启动引导，设置里可随时重温
@@ -63,11 +65,16 @@
                                               │
                                           Reminder ──▶ Room
                                               │
-                                       GeofenceEngine（接口）
-                                              │
-                                    Google Geofence（系统）
-                                              │
-                                  GeofenceBroadcastReceiver
+                  ┌───────────────────────────┴───────────────────────────┐
+                  │                                                       │
+     LocationForegroundService（location FGS）                GeofenceEngine（接口）
+     AdaptiveStateMachine FAR/APPROACH/CRITICAL               Google Geofence（低功耗兜底）
+     distance <= radius → 本地触发                            GeofenceBroadcastReceiver
+     （UI 观察 AlarmLocationRuntime，不控制服务）              （系统调度，可能有延迟）
+                  │                                                       │
+                  └───────────────────────────┬───────────────────────────┘
+                                              ▼
+                                    ReminderTrigger（原子抢占，防重复触发）
                                               │
                                         AlertManager
                                         ┌─────┴─────┐
@@ -80,9 +87,9 @@
 | `amap/` | 高德多级解析：URI → 裸坐标 → 短链 `p` 参数 → 重定向 → 静态 HTML → WebView 兜底 |
 | `coordinate/` | WGS84 / GCJ02 / BD09 换算，只按声明来源转换，禁止重复转换 |
 | `data/` | Room（Reminder 表、DAO、Repository），数据库不负责围栏 |
-| `geofence/` | `GeofenceEngine` 抽象 + Google 实现 + 广播接收（原子抢占，防重复触发） |
-| `alert/` | 通知 / 震动 / 闹铃三种表现，统一从 `AlertManager` 出口 |
-| `location/` | 一次性定位 + 页面可见期间的更新流（离开页面自动取消） |
+| `geofence/` | `GeofenceEngine` 抽象 + Google 实现 + 广播接收（低功耗兜底，注册结果可诊断） |
+| `alert/` | 通知 / 震动 / 闹铃三种表现，统一从 `AlertManager` 出口；`ReminderTrigger` 原子抢占，前台服务与围栏不重复提醒 |
+| `location/` | provider 抽象（GMS Fused / Native LocationManager）、`LocationForegroundService`（自适应后台定位）、`AdaptiveStateMachine`（FAR/APPROACH/CRITICAL + ETA）、fresh-only 一次性定位、`AlarmLocationRuntime` 状态 |
 | `map/` | MapLibre Native + 自定义「ANEN Industrial」样式（道路 / 水系 / 地名 / 边界） |
 | `ui/` | Compose 终端风格界面（地图主页、创建/编辑、分享确认、管理、设置、关于、教程） |
 | `debug/` | 开发者模式下的系统状态与调试报告（一键复制） |
@@ -128,9 +135,9 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 ./gradlew lintDebug
 ```
 
-覆盖：距离与坐标换算（含重复转换防护）、高德 URI / URL / HTML / 短链解析、并发触发抢占、权限规则、创建前范围校验、分享 Intent 全流程、WebView 兜底解析、闹钟前台服务与通知、围栏注册。
+覆盖：距离与坐标换算（含重复转换防护）、高德 URI / URL / HTML / 短链解析、并发触发抢占、权限规则、创建前范围校验、分享 Intent 全流程、WebView 兜底解析、闹钟前台服务与通知、围栏注册，以及自适应状态机（FAR / APPROACH / CRITICAL + 滞回 + ETA 间隔）与定位新鲜度门控。
 
-围栏触发时机、锁屏、后台、重启恢复、静音/勿扰与长时间待机功耗由系统调度决定，建议在目标机型上自行验证。
+后台 / 锁屏定位由 location 前台服务负责（已在 Pixel 8 / Android 15 模拟器验证回调、距离更新与触发）；围栏兜底触发时机、重启恢复、静音/勿扰与长时间待机功耗受系统与 OEM 后台策略影响，建议在目标机型上自行验证。
 
 ## 权限说明
 
@@ -140,9 +147,10 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 | 后台定位（始终允许） | Android 10+ 必需，否则 App 不在前台时收不到围栏事件 |
 | 通知 | 显示空间提醒（Android 13+ 需要运行时授权） |
 | 全屏通知 | 锁屏时显示闹钟全屏界面（Android 14+，系统仍有最终控制权） |
-| 精确闹钟 | **未使用**：空间触发完全由系统地理围栏完成 |
+| 定位前台服务 | 启用闹钟后以前台服务持续定位（Android 14+ 声明 `FOREGROUND_SERVICE_LOCATION`），锁屏 / 后台可继续 |
+| 精确闹钟 | **未使用**：空间触发由本地距离判断（前台服务）与系统围栏共同完成 |
 
-App 不会在后台主动定位、不轮询、不常驻服务；待机时不联网、不刷新地图。
+启用空间闹钟后，App 会运行一个 **location 类型前台服务**持续定位：通知栏常驻、可一键停止，进入范围触发后自动停止；未启用闹钟时不后台定位、不轮询，待机不联网。
 
 ## 第三方与致谢
 
@@ -164,20 +172,21 @@ App 不会在后台主动定位、不轮询、不常驻服务；待机时不联�
 
 ## English
 
-**ANEN Space Alarm** is a lightweight, event-driven Android app that alerts you when you approach a place you chose.
+**ANENG Space Alarm** is an Android app with adaptive background location that alerts you when you approach a place you chose.
 
-**[⬇ Download the APK directly](https://github.com/Polarisbear8/anen-space-alarm/releases/download/v1.0.1/anen-space-alarm-1.0.1-debug.apk)** (~55 MB, debug-signed, for testing only). Other versions are on the [Releases page](https://github.com/Polarisbear8/anen-space-alarm/releases) — on a phone browser the attachments hide behind the collapsed **Assets** section.
+**[⬇ Download the APK directly](https://github.com/Polarisbear8/anen-space-alarm/releases/download/v1.0.2/anen-space-alarm-1.0.2-debug.apk)** (~55 MB, debug-signed, for testing only). Other versions are on the [Releases page](https://github.com/Polarisbear8/anen-space-alarm/releases) — on a phone browser the attachments hide behind the collapsed **Assets** section.
 
 1. Tap the link and confirm the browser's download warning
 2. Open the file; allow "install unknown apps" and, if Play Protect warns, choose "install anyway"
-3. Open ANEN and grant precise + "allow all the time" background location, then share a place from AMap to ANEN
+3. Open ANENG and grant precise + "allow all the time" background location, then share a place from AMap to ANENG
 
-- **Share from AMap** → pick a place → Share → ANEN resolves it automatically (short links, URIs, place pages; multi-level fallback, no API key required).
+- **Share from AMap** → pick a place → Share → ANENG resolves it automatically (short links, URIs, place pages; multi-level fallback, no API key required).
 - **Three alert styles**: notification only · notification + vibration · notification + vibration + alarm.
 - **One-shot or repeating** alarms; repeating alarms fire on every entry.
 - **Map-first UI**: all targets, geofence circles, straight-line distance; enabled targets in orange, disabled in gray.
-- **Battery friendly**: background triggering relies entirely on the system geofence — no GPS polling, no always-on foreground service.
-- **Bilingual** (Chinese / English), **developer mode** with per-level resolver logs and one-tap debug report export.
+- **Adaptive background location**: once armed, a location foreground service keeps positioning in the background / on the lock screen and adapts its rate to distance and closing speed / ETA (roughly 60 s / 15 s / 4 s across FAR / APPROACH / CRITICAL), then stops automatically after firing. The system geofence stays as a low-power fallback.
+- **Provider abstraction**: GMS `FusedLocationProvider` when available, otherwise the framework `LocationManager`.
+- **Bilingual** (Chinese / English), **developer mode** with per-level resolver logs, runtime/service diagnostics and one-tap debug report export.
 - The version row in About is a little mischievous — tap it a few times and see. Keep it quiet.
 
 Build with JDK 17 + Android SDK 35: `./gradlew assembleDebug`. See [构建](#构建) for details.
