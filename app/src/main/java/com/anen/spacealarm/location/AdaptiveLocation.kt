@@ -49,7 +49,11 @@ data class AdaptiveTuning(
     val insideExitMarginMeters: Double = 50.0,
     val insideExitRadiusFraction: Double = 0.2,
     val speedSmoothing: Double = 0.4,
-    val minSampleSeconds: Double = 3.0
+    val minSampleSeconds: Double = 3.0,
+    /** ETA 安全系数：目标是到达半径前至少再采样这么多次，避免高速跨圈。 */
+    val etaSafetyFactor: Double = 3.0,
+    val minIntervalMillis: Long = 3_000L,
+    val maxIntervalMillis: Long = 60_000L
 )
 
 object AdaptiveStateMachine {
@@ -96,10 +100,27 @@ object AdaptiveStateMachine {
         }
     }
 
-    fun intervalMillis(mode: AdaptiveMode, tuning: AdaptiveTuning = AdaptiveTuning()): Long = when (mode) {
-        AdaptiveMode.CRITICAL -> tuning.criticalIntervalMillis
-        AdaptiveMode.APPROACH -> tuning.approachIntervalMillis
-        else -> tuning.farIntervalMillis
+    /**
+     * 自适应 interval：以模式的基础间隔为上限，再用 ETA（预计到达提醒半径的秒数）收紧，
+     * 保证到达半径前至少还有 [AdaptiveTuning.etaSafetyFactor] 次采样。
+     * ETA 未知或未接近时返回基础间隔（保持低功耗）。
+     */
+    fun intervalMillis(
+        mode: AdaptiveMode,
+        etaSeconds: Double? = null,
+        tuning: AdaptiveTuning = AdaptiveTuning()
+    ): Long {
+        val base = when (mode) {
+            AdaptiveMode.CRITICAL -> tuning.criticalIntervalMillis
+            AdaptiveMode.APPROACH -> tuning.approachIntervalMillis
+            else -> tuning.farIntervalMillis
+        }
+        val capped = if (etaSeconds != null && etaSeconds > 0.0) {
+            (etaSeconds * 1000.0 / tuning.etaSafetyFactor).toLong()
+        } else {
+            base
+        }
+        return capped.coerceIn(tuning.minIntervalMillis, base)
     }
 
     fun priority(mode: AdaptiveMode, tuning: AdaptiveTuning = AdaptiveTuning()): Int = when (mode) {

@@ -40,8 +40,17 @@ class LocationForegroundService : Service() {
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var locationJob: Job? = null
     private var reminderJob: Job? = null
-    private val modeFlow = MutableStateFlow(AdaptiveMode.FAR)
     private val tuning = AdaptiveTuning()
+
+    /** 模式 + 由 ETA 收紧后的 interval；任一变化才重建定位 request。 */
+    private data class AdaptiveRequest(
+        val mode: AdaptiveMode,
+        val intervalMillis: Long,
+        val priority: Int,
+        val minUpdateDistanceMeters: Float
+    )
+
+    private val requestFlow = MutableStateFlow(buildRequest(AdaptiveMode.FAR, null))
 
     @Volatile
     private var reminders: List<Reminder> = emptyList()
@@ -70,8 +79,9 @@ class LocationForegroundService : Service() {
             return
         }
         startForegroundCompat(NotificationHelper.buildLocationServiceNotification(this, "STARTING"))
+        requestFlow.value = buildRequest(AdaptiveMode.FAR, null)
         AlarmLocationRuntime.update {
-            it.copy(running = true, mode = modeFlow.value, triggerState = TriggerState.ARMED)
+            it.copy(running = true, mode = requestFlow.value.mode, triggerState = TriggerState.ARMED)
         }
         if (locationJob?.isActive == true) {
             Log.d(TAG, "already running")
@@ -100,19 +110,23 @@ class LocationForegroundService : Service() {
             }
             // 立刻取一次 fresh fix，避免等服务周期
             provider.currentLocation()?.let { onLocation(it) }
-            // 自适应频率：模式变化时切换到新的 request
-            modeFlow.flatMapLatest { mode ->
-                val spec = LocationRequestSpec(
-                    intervalMillis = AdaptiveStateMachine.intervalMillis(mode, tuning),
-                    priority = AdaptiveStateMachine.priority(mode, tuning),
-                    minUpdateDistanceMeters = AdaptiveStateMachine.minUpdateDistanceMeters(mode, tuning)
-                )
+            // 自适应频率：模式或 ETA 收紧后的 interval 变化时，切换到新的 request
+            requestFlow.flatMapLatest { request ->
                 AlarmLocationRuntime.update {
-                    it.copy(mode = mode, requestedIntervalMillis = spec.intervalMillis)
+                    it.copy(mode = request.mode, requestedIntervalMillis = request.intervalMillis)
                 }
-                Log.d(TAG, "LOCATION MODE ${mode.name} interval=${spec.intervalMillis} priority=${spec.priority}")
-                updateNotification(mode)
-                provider.locationUpdates(spec)
+                Log.d(
+                    TAG,
+                    "LOCATION MODE ${request.mode.name} interval=${request.intervalMillis} priority=${request.priority}"
+                )
+                updateNotification(request.mode)
+                provider.locationUpdates(
+                    LocationRequestSpec(
+                        intervalMillis = request.intervalMillis,
+                        priority = request.priority,
+                        minUpdateDistanceMeters = request.minUpdateDistanceMeters
+                    )
+                )
             }.collect { onLocation(it) }
         }
     }
@@ -144,9 +158,14 @@ class LocationForegroundService : Service() {
         previousSampleNanos = location.elapsedRealtimeNanos
         val eta = AdaptiveStateMachine.etaSeconds(distance, nearest.radiusMeters.toDouble(), previousSpeed)
 
-        val nextMode = AdaptiveStateMachine.next(modeFlow.value, distance, eta, tuning)
-        if (nextMode != modeFlow.value) {
-            modeFlow.value = nextMode
+        val current = requestFlow.value
+        val nextMode = AdaptiveStateMachine.next(current.mode, distance, eta, tuning)
+        val desired = buildRequest(nextMode, eta)
+        // interval 有实质变化才重建 request，避免频繁重排。
+        if (desired.mode != current.mode ||
+            kotlin.math.abs(desired.intervalMillis - current.intervalMillis) >= REQUEST_UPDATE_THRESHOLD_MS
+        ) {
+            requestFlow.value = desired
         }
 
         val ageMs = (SystemClock.elapsedRealtimeNanos() - location.elapsedRealtimeNanos) / 1_000_000L
@@ -157,7 +176,7 @@ class LocationForegroundService : Service() {
                 "elapsedRealtimeNanos=${location.elapsedRealtimeNanos} ageMs=$ageMs " +
                 "interval=${AlarmLocationRuntime.status.value.requestedIntervalMillis} " +
                 "distance=${"%.1f".format(distance)} " +
-                "closing=${"%.2f".format(previousSpeed)} eta=${eta?.let { "%.0f".format(it) } ?: "-"} mode=${modeFlow.value}"
+                "closing=${"%.2f".format(previousSpeed)} eta=${eta?.let { "%.0f".format(it) } ?: "-"} mode=${requestFlow.value.mode}"
         )
 
         AlarmLocationRuntime.update {
@@ -196,6 +215,13 @@ class LocationForegroundService : Service() {
             }
         }
     }
+
+    private fun buildRequest(mode: AdaptiveMode, etaSeconds: Double?): AdaptiveRequest = AdaptiveRequest(
+        mode = mode,
+        intervalMillis = AdaptiveStateMachine.intervalMillis(mode, etaSeconds, tuning),
+        priority = AdaptiveStateMachine.priority(mode, tuning),
+        minUpdateDistanceMeters = AdaptiveStateMachine.minUpdateDistanceMeters(mode, tuning)
+    )
 
     private fun distanceTo(location: Location, reminder: Reminder): Double =
         DistanceCalculator.calculateDistanceMeters(
@@ -243,13 +269,15 @@ class LocationForegroundService : Service() {
         previousDistance = null
         previousSpeed = 0.0
         previousSampleNanos = 0L
-        modeFlow.value = AdaptiveMode.FAR
+        requestFlow.value = buildRequest(AdaptiveMode.FAR, null)
         AlarmLocationRuntime.reset()
         super.onDestroy()
     }
 
     companion object {
         private const val TAG = "AnenLocationService"
+        /** interval 变化超过该值才重建 request。 */
+        private const val REQUEST_UPDATE_THRESHOLD_MS = 1_500L
         const val ACTION_START = "com.anen.spacealarm.action.START_LOCATION"
         const val ACTION_STOP = "com.anen.spacealarm.action.STOP_LOCATION"
 

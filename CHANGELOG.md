@@ -2,6 +2,24 @@
 
 本项目的主要变更记录。版本号遵循语义化版本。
 
+## 1.0.2
+
+相对 1.0.1 的主要变化：
+
+- 自适应定位策略进一步优化：根据最近采样的 closing speed / ETA 动态收紧定位间隔，
+  在到达提醒半径前保留足够的采样次数，降低高速接近时因低频采样跨过提醒圈、导致提醒延迟的风险。
+- 跨越状态阈值仍可直接触发：CRITICAL 只是高频策略状态，不是触发前提。
+  任意新鲜位置只要 `distance <= reminderRadius` 即直接触发（FAR → 半径内 → TRIGGERED 合法）。
+- Native LocationManager 的 fresh-location 处理增强：记录 request 开始时间，
+  只接受产生于 request 之后的 fix，超时或仅有旧 fix 时返回失败，不再把缓存 fix 当作 fresh。
+- 后台 / 锁屏定位机制保持：Location FGS + GMS FusedLocationProvider + Native LocationManager fallback。
+- 刷新按钮保持 fresh-only 语义：失败显示明确状态，不覆盖已有 fresh 时间戳，不使用 `lastKnownLocation()`。
+- 新增定位服务 / 运行环境诊断（开发者模式）：Service 状态、Mode、请求间隔、最近回调、
+  distance、closing speed、ETA、trigger 状态、availability。
+- 提醒触发统一走 `ReminderTrigger`（原子抢占），Geofence 兜底与前台服务共用，防止重复触发。
+- 显示名统一为 ANENG。
+- 测试与可靠性验证增强：高速跨圈、锁屏回归、Native provider、refresh success / failure。
+
 ## 1.0.1
 
 - 补齐剩余的双语文案：闹钟全屏页的范围提示、无名地点的兜底名称（未命名地点 / Unnamed place）

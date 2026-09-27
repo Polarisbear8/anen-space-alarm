@@ -80,10 +80,34 @@ class AdaptiveStateMachineTest {
 
     @Test
     fun `interval and priority follow mode`() {
-        assertEquals(tuning.criticalIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.CRITICAL, tuning))
-        assertEquals(tuning.approachIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.APPROACH, tuning))
-        assertEquals(tuning.farIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.FAR, tuning))
+        assertEquals(tuning.criticalIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.CRITICAL, null, tuning))
+        assertEquals(tuning.approachIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.APPROACH, null, tuning))
+        assertEquals(tuning.farIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.FAR, null, tuning))
         assertEquals(LocationPriority.HIGH_ACCURACY, AdaptiveStateMachine.priority(AdaptiveMode.CRITICAL, tuning))
+    }
+
+    @Test
+    fun `eta shrinks interval so fast approach cannot cross the window`() {
+        // FAR 基础 60s，但 ETA 45s：安全系数 3 -> 15s，绝不再等 60s。
+        assertEquals(15_000L, AdaptiveStateMachine.intervalMillis(AdaptiveMode.FAR, etaSeconds = 45.0, tuning))
+        // ETA 更短 -> 更密，但不低于下限。
+        assertEquals(
+            tuning.minIntervalMillis,
+            AdaptiveStateMachine.intervalMillis(AdaptiveMode.FAR, etaSeconds = 3.0, tuning)
+        )
+        // 未知 / 未接近 -> 保持基础间隔（省电）。
+        assertEquals(tuning.farIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.FAR, null, tuning))
+        assertEquals(tuning.farIntervalMillis, AdaptiveStateMachine.intervalMillis(AdaptiveMode.FAR, 0.0, tuning))
+    }
+
+    @Test
+    fun `high closing speed lowers requested interval far out`() {
+        val distance = 1_200.0
+        val radius = 100.0
+        val speed = 25.0 // m/s
+        val eta = AdaptiveStateMachine.etaSeconds(distance, radius, speed)!! // (1200-100)/25 = 44s
+        val interval = AdaptiveStateMachine.intervalMillis(AdaptiveMode.FAR, eta, tuning)
+        assertTrue("interval 应明显小于 FAR 基础 60s，实际=$interval", interval < tuning.farIntervalMillis)
     }
 
     @Test

@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.Looper
+import android.os.SystemClock
 import android.util.Log
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 /**
@@ -38,22 +40,46 @@ class NativeLocationProvider(context: Context) : LocationProvider {
     override fun hasPermission(): Boolean =
         com.anen.spacealarm.permission.PermissionManager.hasAnyLocation(appContext)
 
+    /**
+     * fresh-only 一次性定位。
+     *
+     * framework 的 getCurrentLocation 在部分设备上会返回较近的缓存 fix。
+     * 这里记录 request 开始时间，只接受“产生于 request 开始之后”的 fix，
+     * 超时或只有旧 fix 时返回 null —— 绝不用旧缓存冒充 fresh。
+     */
     @SuppressLint("MissingPermission")
     override suspend fun currentLocation(): Location? {
         if (!hasPermission()) return null
         // API < 30 没有 framework 的一次性定位 API；不返回缓存冒充 fresh。
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return null
         val provider = providerFor(PRIORITY_HIGH_ACCURACY) ?: return null
-        return suspendCancellableCoroutine { cont ->
-            val signal = CancellationSignal()
-            cont.invokeOnCancellation { signal.cancel() }
-            try {
-                manager.getCurrentLocation(provider, signal, appContext.mainExecutor) { location ->
-                    if (cont.isActive) cont.resume(location)
+        val requestStartElapsed = SystemClock.elapsedRealtimeNanos()
+        return withTimeoutOrNull(FRESH_LOCATION_TIMEOUT_MILLIS) {
+            suspendCancellableCoroutine { cont ->
+                val signal = CancellationSignal()
+                cont.invokeOnCancellation { signal.cancel() }
+                try {
+                    manager.getCurrentLocation(provider, signal, appContext.mainExecutor) { location ->
+                        if (!cont.isActive) return@getCurrentLocation
+                        val resultElapsed = location?.elapsedRealtimeNanos ?: 0L
+                        val ageMs = if (location != null) {
+                            (SystemClock.elapsedRealtimeNanos() - resultElapsed) / 1_000_000L
+                        } else {
+                            -1L
+                        }
+                        // fresh-only：fix 时间不得早于本次 request 开始时间。
+                        val fresh = location != null && resultElapsed >= requestStartElapsed
+                        Log.d(
+                            TAG,
+                            "native currentLocation requestStartElapsed=$requestStartElapsed " +
+                                "resultElapsed=$resultElapsed ageMs=$ageMs fresh=$fresh"
+                        )
+                        cont.resume(if (fresh) location else null)
+                    }
+                } catch (e: Exception) {
+                    Log.w(TAG, "native currentLocation failed", e)
+                    if (cont.isActive) cont.resume(null)
                 }
-            } catch (e: Exception) {
-                Log.w(TAG, "native currentLocation failed", e)
-                if (cont.isActive) cont.resume(null)
             }
         }
     }
@@ -133,5 +159,6 @@ class NativeLocationProvider(context: Context) : LocationProvider {
 
         /** 与 Google `Priority.PRIORITY_HIGH_ACCURACY` 相同的数值，避免依赖 GMS 常量。 */
         private const val PRIORITY_HIGH_ACCURACY = 100
+        private const val FRESH_LOCATION_TIMEOUT_MILLIS = 15_000L
     }
 }
