@@ -2,13 +2,16 @@ package com.anen.spacealarm.permission
 
 import android.Manifest
 import android.app.NotificationManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 
 /**
  * 权限状态与申请入口。每一项权限都要能向用户解释用途，不一次性全部申请。
@@ -113,4 +116,72 @@ object PermissionManager {
         return Intent(Settings.ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT)
             .setData(Uri.fromParts("package", context.packageName, null))
     }
+
+    /** 系统定位总开关是否打开（定位服务关闭时 Geofence 一定不工作）。 */
+    fun isLocationEnabled(context: Context): Boolean {
+        val manager = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return false
+        return LocationManagerCompat.isLocationEnabled(manager)
+    }
+
+    /**
+     * 是否属于 Honor / Huawei 家族。只用于决定展示哪一套“手动设置”指引，
+     * 绝不据此推断 GMS 是否可用（GMS 一律走 GoogleApiAvailability 运行时检测）。
+     */
+    fun isHonorFamily(): Boolean {
+        val name = (Build.MANUFACTURER + " " + Build.BRAND).lowercase()
+        return name.contains("honor") || name.contains("huawei")
+    }
+
+    /** 电池优化设置列表页（无需权限，不强制加白，仅作为手动入口）。 */
+    fun batteryOptimizationSettingsIntent(): Intent =
+        Intent(Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS)
+
+    /**
+     * 打开厂商“应用启动管理”页面。
+     *
+     * 候选组件逐个用 [PackageManager.resolveActivity] 做运行时校验，只有真正可解析的才使用；
+     * 任何一个都不可用时回退到应用详情页。绝不主动抛出 ActivityNotFoundException。
+     */
+    fun backgroundReliabilityIntent(context: Context): Intent =
+        firstResolvable(context, OEM_LAUNCH_INTENTS) ?: appDetailsSettingsIntent(context)
+
+    private fun firstResolvable(context: Context, candidates: List<Intent>): Intent? {
+        val pm = context.packageManager
+        for (candidate in candidates) {
+            val intent = Intent(candidate).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            if (intent.resolveActivity(pm) != null) return intent
+        }
+        return null
+    }
+
+    /**
+     * Honor / Huawei 家族的应用启动管理页候选。MagicOS 与 EMUI 的组件名属于未公开实现，
+     * 因此这里只在运行时解析成功后才会真正跳转。
+     */
+    private val OEM_LAUNCH_INTENTS: List<Intent> = listOf(
+        Intent().setComponent(
+            ComponentName(
+                "com.hihonor.systemmanager",
+                "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
+            )
+        ),
+        Intent().setComponent(
+            ComponentName(
+                "com.hihonor.systemmanager",
+                "com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity"
+            )
+        ),
+        Intent().setComponent(
+            ComponentName(
+                "com.huawei.systemmanager",
+                "com.huawei.systemmanager.startupmgr.ui.StartupNormalAppListActivity"
+            )
+        ),
+        Intent().setComponent(
+            ComponentName(
+                "com.huawei.systemmanager",
+                "com.huawei.systemmanager.appcontrol.activity.StartupAppControlActivity"
+            )
+        )
+    )
 }

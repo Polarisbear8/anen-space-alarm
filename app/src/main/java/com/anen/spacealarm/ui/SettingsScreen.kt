@@ -2,6 +2,7 @@
 
 import android.location.Location
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,6 +41,7 @@ import com.anen.spacealarm.ui.theme.AnenOrange
 import com.anen.spacealarm.ui.theme.AnenOrangeDim
 import com.anen.spacealarm.ui.theme.AnenText
 import com.anen.spacealarm.ui.theme.AnenTextDim
+import com.anen.spacealarm.ui.theme.AnenWarn
 
 /**
  * 设置页。
@@ -52,21 +54,26 @@ fun SettingsScreen(
     reminders: List<Reminder>,
     permissions: PermissionManager.State,
     developerMode: Boolean,
+    honorFamily: Boolean,
+    batteryOptimizationExempt: Boolean,
     onToggleDeveloperMode: (Boolean) -> Unit,
     onOpenPermissionCheck: () -> Unit,
     onOpenLanguage: () -> Unit,
     onOpenTutorial: () -> Unit,
     onOpenLocationSettings: () -> Unit,
     locationIntervalSeconds: Int,
+    onOpenBackgroundReliability: () -> Unit,
+    onOpenBatterySettings: () -> Unit,
     onOpenAbout: () -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val locationProvider = remember { AppContainer.locationProvider(context) }
     var userLocation by remember { mutableStateOf<Location?>(null) }
 
     LaunchedEffect(permissions.fineLocation || permissions.coarseLocation) {
         if (!permissions.fineLocation && !permissions.coarseLocation) return@LaunchedEffect
-        userLocation = AppContainer.locationProvider(context).lastKnownLocation()
+        userLocation = locationProvider.lastKnownLocation()
     }
 
     TermScreen {
@@ -128,11 +135,31 @@ fun SettingsScreen(
             onClick = onOpenAbout
         )
 
+        BackgroundReliabilitySection(
+            honorFamily = honorFamily,
+            batteryOptimizationExempt = batteryOptimizationExempt,
+            onOpenBackgroundReliability = onOpenBackgroundReliability,
+            onOpenBatterySettings = onOpenBatterySettings
+        )
+
         if (developerMode) {
-            TermSection("02", stringResource(R.string.settings_developer_section))
+            TermSection("03", stringResource(R.string.settings_developer_section))
+            DebugBlock(
+                title = stringResource(R.string.dev_section_compat),
+                content = DebugInfo.compatSection(context)
+            )
+            DebugBlock(
+                title = stringResource(R.string.dev_section_location_service),
+                content = DebugInfo.locationServiceSection(context)
+            )
             DebugBlock(
                 title = stringResource(R.string.dev_section_system_status),
-                content = DebugInfo.buildReport(context, reminders, userLocation)
+                content = DebugInfo.buildReport(
+                    context,
+                    reminders,
+                    userLocation,
+                    locationProvider.availability.value
+                )
             )
             DebugBlock(
                 title = stringResource(R.string.dev_section_share),
@@ -144,8 +171,11 @@ fun SettingsScreen(
             )
             DebugBlock(
                 title = stringResource(R.string.dev_section_location),
-                content = DebugInfo.locationSection(context, userLocation) + "\n" +
-                    DebugInfo.locationUpdatesSection(context)
+                content = DebugInfo.locationSection(
+                    context,
+                    userLocation,
+                    locationProvider.availability.value
+                ) + "\n" + DebugInfo.locationUpdatesSection(context)
             )
             DebugBlock(
                 title = stringResource(R.string.dev_section_geofence),
@@ -170,7 +200,71 @@ fun SettingsScreen(
         }
 
         Column(modifier = Modifier.padding(start = 14.dp, top = 14.dp, bottom = 24.dp)) {
-            TermText("ANEN SPACE ALARM", color = AnenTextDim, size = 10)
+            TermText("ANENG SPACE ALARM", color = AnenTextDim, size = 10)
+        }
+    }
+}
+
+/**
+ * 后台可靠性：非侵入式指引 + 手动设置入口。
+ * 这些 OEM 开关无法被 App 读取，因此只提示“需要手动确认”，不虚报 ON/OFF。
+ */
+@Composable
+private fun BackgroundReliabilitySection(
+    honorFamily: Boolean,
+    batteryOptimizationExempt: Boolean,
+    onOpenBackgroundReliability: () -> Unit,
+    onOpenBatterySettings: () -> Unit
+) {
+    TermSection("02", stringResource(R.string.reliability_section))
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 14.dp, vertical = 8.dp)
+    ) {
+        TermHint(stringResource(R.string.reliability_intro))
+        if (honorFamily) {
+            TermLabel(
+                stringResource(R.string.reliability_honor_steps),
+                color = AnenText,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+            TermHint(stringResource(R.string.reliability_honor_detail))
+        } else {
+            TermHint(
+                stringResource(R.string.reliability_generic_detail),
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
+        TermHint(
+            stringResource(R.string.reliability_manual_check),
+            color = AnenWarn,
+            modifier = Modifier.padding(top = 6.dp)
+        )
+        TermHint(
+            stringResource(
+                if (batteryOptimizationExempt) R.string.reliability_battery_exempt
+                else R.string.reliability_battery_optimized
+            ),
+            color = if (batteryOptimizationExempt) AnenTextDim else AnenWarn,
+            modifier = Modifier.padding(top = 6.dp)
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            TermButton(
+                text = stringResource(R.string.reliability_open_launch),
+                onClick = onOpenBackgroundReliability,
+                modifier = Modifier.weight(1f)
+            )
+            TermButton(
+                text = stringResource(R.string.reliability_open_battery),
+                onClick = onOpenBatterySettings,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }

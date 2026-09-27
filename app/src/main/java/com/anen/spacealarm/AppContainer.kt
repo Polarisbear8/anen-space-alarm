@@ -11,6 +11,7 @@ import com.anen.spacealarm.geofence.GoogleGeofenceEngine
 import com.anen.spacealarm.location.DistanceCalculator
 import com.anen.spacealarm.location.LocationFix
 import com.anen.spacealarm.location.LocationProvider
+import com.anen.spacealarm.location.LocationProviders
 import com.anen.spacealarm.model.Reminder
 import com.anen.spacealarm.permission.PermissionManager
 import okhttp3.OkHttpClient
@@ -103,7 +104,7 @@ object AppContainer {
 
     fun geofenceEngine(context: Context): GeofenceEngine = GoogleGeofenceEngine(context)
 
-    fun locationProvider(context: Context): LocationProvider = LocationProvider(context)
+    fun locationProvider(context: Context): LocationProvider = LocationProviders.create(context)
 
     /**
      * 保存提醒并注册围栏。

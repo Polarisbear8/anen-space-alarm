@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App -->
-    <string name="app_name">阿能的空间闹钟</string>
-    <string name="app_title">ANEN / SPATIAL ALARM</string>
+    <string name="app_name">ANENG 空间闹钟</string>
+    <string name="app_title">ANENG / SPATIAL ALARM</string>
     <string name="app_subtitle">空间提醒终端</string>
     <string name="app_description">基于空间位置的轻量提醒工具：接近你选定的地点时提醒你。</string>
 
@@ -141,6 +141,16 @@
     <string name="settings_developer_section">开发者</string>
     <string name="dev_mode_on">开启</string>
     <string name="dev_mode_off">关闭</string>
+    <string name="reliability_section">后台可靠性</string>
+    <string name="reliability_intro">空间提醒依赖系统在 ANENG 处于后台时派发地理围栏事件。部分手机会限制后台应用，导致提醒延迟或丢失。</string>
+    <string name="reliability_honor_steps">设置 &gt; 应用 &gt; 应用启动管理 &gt; ANENG &gt; 手动管理</string>
+    <string name="reliability_honor_detail">在可用时打开“自启动”“关联启动”“后台活动”。</string>
+    <string name="reliability_generic_detail">允许 ANENG 在后台运行，并关闭对它的电池优化。</string>
+    <string name="reliability_manual_check">需要手动确认：App 无法读取这些开关，请自行核对。</string>
+    <string name="reliability_open_launch">启动管理设置</string>
+    <string name="reliability_open_battery">电池设置</string>
+    <string name="reliability_battery_exempt">电池优化：已豁免。</string>
+    <string name="reliability_battery_optimized">电池优化：生效中 —— 后台提醒可能延迟。</string>
 
     <!-- Permission check -->
     <string name="permission_check_title">权限核查</string>
@@ -171,9 +181,9 @@
 
     <!-- About -->
     <string name="about_title">关于</string>
-    <string name="about_subtitle">阿能的空间闹钟</string>
+    <string name="about_subtitle">ANENG 空间闹钟</string>
     <string name="about_version_section">版本</string>
-    <string name="about_app">阿能的空间闹钟</string>
+    <string name="about_app">ANENG 空间闹钟</string>
     <string name="about_version">%1$s（%2$d）</string>
     <string name="about_acknowledgements">开源致谢</string>
     <string name="about_source_label">源码</string>
@@ -197,6 +207,19 @@
     <string name="credit_openfreemap">开发阶段为地图样式提供矢量瓦片。</string>
 
     <!-- Developer sections -->
+    <string name="dev_section_compat">运行环境</string>
+    <string name="dev_section_location_service">定位服务</string>
+    <string name="dev_label_service">服务</string>
+    <string name="dev_value_running">运行中</string>
+    <string name="dev_value_stopped">已停止</string>
+    <string name="dev_label_mode">模式</string>
+    <string name="dev_label_requested_interval">请求间隔</string>
+    <string name="dev_label_last_callback">最近回调</string>
+    <string name="dev_label_distance">到目标距离</string>
+    <string name="dev_label_closing_speed">接近速度</string>
+    <string name="dev_label_eta">预计到达</string>
+    <string name="dev_label_radius">提醒半径</string>
+    <string name="dev_label_trigger">触发</string>
     <string name="dev_section_system_status">APP 系统状态</string>
     <string name="dev_section_share">分享调试</string>
     <string name="dev_section_resolver">高德解析调试</string>
@@ -210,16 +233,40 @@
     <string name="dev_label_android">Android 版本</string>
     <string name="dev_label_sdk">SDK</string>
     <string name="dev_label_device">设备</string>
+    <string name="dev_label_manufacturer">厂商</string>
+    <string name="dev_label_model">型号</string>
+    <string name="dev_label_gms">Google Play 服务</string>
+    <string name="dev_label_gms_version">GMS 版本</string>
+    <string name="dev_label_location_services">定位服务</string>
+    <string name="dev_label_battery_optimization">电池优化</string>
+    <string name="dev_label_standby_bucket">待机分组</string>
+    <string name="dev_label_process_state">进程状态</string>
+    <string name="dev_label_geofence_registration">最近围栏注册</string>
+    <string name="dev_label_boot_restore">最近重启恢复</string>
+    <string name="dev_label_boot_broadcast">重启广播</string>
+    <string name="dev_value_exempt">已豁免（白名单）</string>
+    <string name="dev_value_optimized">受优化（可能受限）</string>
+    <string name="dev_value_missing">缺失（未收到重启广播）</string>
+    <string name="dev_value_handled">已收到</string>
     <string name="dev_label_latitude">纬度</string>
     <string name="dev_label_longitude">经度</string>
     <string name="dev_label_accuracy">精度</string>
     <string name="dev_label_coordinate_system">坐标系</string>
     <string name="dev_label_provider">提供方</string>
     <string name="dev_label_timestamp">时间戳</string>
+    <string name="dev_label_last_update">更新时间</string>
+    <string name="dev_label_age">数据年龄</string>
+    <string name="dev_label_availability">可用性</string>
+    <string name="dev_value_available">可用</string>
+    <string name="dev_value_unavailable">不可用</string>
+    <string name="dev_value_unknown">未知</string>
     <string name="dev_label_map_engine">地图引擎</string>
     <string name="dev_label_map_source">地图数据源</string>
     <string name="dev_label_geofence_engine">围栏引擎</string>
     <string name="dev_label_active_geofences">活动围栏数</string>
+    <string name="dev_label_last_event">最近事件</string>
+    <string name="dev_label_last_event_time">最近事件时间</string>
+    <string name="dev_label_last_reminder">最近提醒</string>
     <string name="dev_label_reminders">提醒总数</string>
     <string name="dev_label_active_reminders">生效中</string>
     <string name="dev_label_no_data">暂无数据</string>
@@ -245,6 +292,12 @@
     <string name="channel_alert_vibrate_desc">通知并震动</string>
     <string name="channel_alarm_name">空间闹钟</string>
     <string name="channel_alarm_desc">进入目标范围时响铃与振动</string>
+    <string name="channel_location_service_name">定位服务</string>
+    <string name="channel_location_service_desc">空间闹钟启用期间持续定位。</string>
+    <string name="location_service_title">ANENG 空间闹钟运行中</string>
+    <string name="location_service_stop">停止</string>
+    <string name="refresh_location_getting">正在获取新定位…</string>
+    <string name="refresh_location_failed">定位失败</string>
     <string name="notif_title">空间提醒</string>
     <string name="notif_title_alarm">空间闹钟</string>
     <string name="notif_dismiss">关闭闹钟</string>

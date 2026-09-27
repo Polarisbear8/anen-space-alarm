@@ -6,9 +6,12 @@ import android.content.Intent
 import android.util.Log
 import com.anen.spacealarm.model.Reminder
 import com.anen.spacealarm.permission.PermissionManager
+import com.anen.spacealarm.preferences.AppPreferences
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
@@ -26,17 +29,45 @@ class GoogleGeofenceEngine(private val context: Context) : GeofenceEngine {
         GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
 
     override suspend fun add(reminder: Reminder) {
+        // Geofencing API 要求精确位置；Android 10+ 还必须有后台定位，否则 App 不在前台时收不到事件。
         if (!PermissionManager.hasFineLocation(context)) {
+            recordRegistration(reminder.id, "ERROR:permission:fine")
             throw SecurityException("需要精确位置权限，无法注册地理围栏")
+        }
+        if (!PermissionManager.hasBackgroundLocation(context)) {
+            recordRegistration(reminder.id, "ERROR:permission:background")
+            throw SecurityException("需要后台位置权限，无法注册地理围栏")
+        }
+        // 定位总开关关闭时，注册可能成功但永远不会触发；记录以便区分环境问题。
+        if (!PermissionManager.isLocationEnabled(context)) {
+            Log.w(TAG, "location services disabled at add: id=${reminder.id} at=${System.currentTimeMillis()}")
         }
         val request = buildRequest(reminder)
         try {
             client.addGeofences(request, geofencePendingIntent()).await()
+        } catch (e: ApiException) {
+            val name = statusName(e.statusCode)
+            recordRegistration(reminder.id, "ERROR:${e.statusCode}:$name")
+            Log.w(TAG, "addGeofences failed: id=${reminder.id} statusCode=${e.statusCode} $name at=${System.currentTimeMillis()}", e)
+            throw e
         } catch (e: SecurityException) {
-            Log.w(TAG, "addGeofences denied by system", e)
+            recordRegistration(reminder.id, "ERROR:security")
+            Log.w(TAG, "addGeofences denied by system at=${System.currentTimeMillis()}", e)
             throw e
         }
-        Log.d(TAG, "geofence added: id=${reminder.id} r=${reminder.radiusMeters}")
+        recordRegistration(reminder.id, "OK")
+        Log.i(TAG, "geofence added: id=${reminder.id} r=${reminder.radiusMeters} requestId=${reminder.id} at=${System.currentTimeMillis()}")
+    }
+
+    private fun recordRegistration(reminderId: Long, result: String) {
+        AppPreferences.setGeofenceRegistration(context, reminderId, result, System.currentTimeMillis())
+    }
+
+    private fun statusName(statusCode: Int): String = when (statusCode) {
+        GeofenceStatusCodes.GEOFENCE_NOT_AVAILABLE -> "GEOFENCE_NOT_AVAILABLE"
+        GeofenceStatusCodes.GEOFENCE_TOO_MANY_GEOFENCES -> "GEOFENCE_TOO_MANY_GEOFENCES"
+        GeofenceStatusCodes.GEOFENCE_TOO_MANY_PENDING_INTENTS -> "GEOFENCE_TOO_MANY_PENDING_INTENTS"
+        else -> "STATUS($statusCode)"
     }
 
     override suspend fun update(reminder: Reminder) {
@@ -89,6 +120,8 @@ class GoogleGeofenceEngine(private val context: Context) : GeofenceEngine {
     companion object {
         private const val TAG = "AnenGeofence"
         private const val REQUEST_CODE = 100
-        private const val RESPONSIVENESS_MILLIS = 60_000
+        // 0 = 让系统尽快派发；实际触发仍受 Android / OEM 后台调度影响，不保证时延。
+        // ponytail: 若实测耗电明显，再按需调回 60_000。
+        private const val RESPONSIVENESS_MILLIS = 0
     }
 }

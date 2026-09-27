@@ -30,6 +30,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.anen.spacealarm.amap.ResolveResult
+import com.anen.spacealarm.debug.DeviceCompat
+import com.anen.spacealarm.location.LocationForegroundService
 import com.anen.spacealarm.model.AlertMode
 import com.anen.spacealarm.model.CoordinateSystem
 import com.anen.spacealarm.model.Place
@@ -39,6 +41,7 @@ import com.anen.spacealarm.permission.PermissionManager
 import com.anen.spacealarm.preferences.AppPreferences
 import com.anen.spacealarm.preferences.LocaleManager
 import com.anen.spacealarm.share.ShareContent
+import com.anen.spacealarm.system.BootReceiver
 import com.anen.spacealarm.ui.AboutScreen
 import com.anen.spacealarm.ui.CreateReminderScreen
 import com.anen.spacealarm.ui.EasterEgg
@@ -177,7 +180,11 @@ private fun AnenRoot() {
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) refreshPermissions()
+            if (event == Lifecycle.Event.ON_RESUME) {
+                refreshPermissions()
+                // 检测设备是否重启过但未收到 BOOT_COMPLETED（部分 OEM 会拦截），仅记录诊断。
+                BootReceiver.noteAppStarted(context)
+            }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
@@ -216,6 +223,14 @@ private fun AnenRoot() {
         notificationLauncher.launch(notificationPermissions.first())
     }
 
+    fun openBackgroundReliability() {
+        openSettingsIntent(PermissionManager.backgroundReliabilityIntent(context))
+    }
+
+    fun openBatterySettings() {
+        openSettingsIntent(PermissionManager.batteryOptimizationSettingsIntent())
+    }
+
     suspend fun registerGeofence(reminder: Reminder): Boolean = try {
         geofenceEngine.add(reminder)
         true
@@ -241,6 +256,8 @@ private fun AnenRoot() {
                 val outcome = AppContainer.createAndArm(context, draft)
                 when (outcome.result) {
                     AppContainer.ArmResult.ARMED -> {
+                        // FGS 是主要触发机制；Geofence 保留为低功耗兜底。
+                        LocationForegroundService.start(context)
                         screen = Screen.Home
                     }
                     // 已在范围内 / 取不到定位：不写数据库、不注册围栏，留在本页让用户改地点或半径
@@ -273,6 +290,7 @@ private fun AnenRoot() {
                     if (!registerGeofence(updated)) {
                         toast(context.getString(R.string.arm_registration_failed))
                     }
+                    LocationForegroundService.start(context)
                 }
                 screen = Screen.List
             } finally {
@@ -315,6 +333,7 @@ private fun AnenRoot() {
                     if (enabled) {
                         if (registerGeofence(reminder)) {
                             repository.setEnabled(reminder.id, true)
+                            LocationForegroundService.start(context)
                         } else {
                             toast(context.getString(R.string.arm_registration_failed))
                         }
@@ -328,6 +347,7 @@ private fun AnenRoot() {
                 scope.launch {
                     if (registerGeofence(reminder)) {
                         repository.setEnabled(reminder.id, true)
+                        LocationForegroundService.start(context)
                     } else {
                         toast(context.getString(R.string.arm_registration_failed))
                     }
@@ -423,6 +443,8 @@ private fun AnenRoot() {
             reminders = reminders,
             permissions = permissions,
             developerMode = developerMode,
+            honorFamily = PermissionManager.isHonorFamily(),
+            batteryOptimizationExempt = DeviceCompat.isBatteryOptimizationExempt(context),
             onToggleDeveloperMode = { enabled ->
                 AppPreferences.setDeveloperMode(context, enabled)
                 developerMode = enabled
@@ -432,6 +454,8 @@ private fun AnenRoot() {
             onOpenTutorial = { screen = Screen.Tutorial },
             onOpenLocationSettings = { screen = Screen.LocationSettings },
             locationIntervalSeconds = locationIntervalSeconds,
+            onOpenBackgroundReliability = { openBackgroundReliability() },
+            onOpenBatterySettings = { openBatterySettings() },
             onOpenAbout = { screen = Screen.About },
             onBack = { screen = Screen.Home }
         )

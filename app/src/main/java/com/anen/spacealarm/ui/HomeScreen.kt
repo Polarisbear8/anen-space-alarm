@@ -5,6 +5,8 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.location.Location
+import android.os.SystemClock
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,6 +35,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,9 +50,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import com.anen.spacealarm.AppContainer
 import com.anen.spacealarm.R
+import com.anen.spacealarm.location.AlarmLocationRuntime
 import com.anen.spacealarm.location.DistanceCalculator
+import com.anen.spacealarm.location.LocationPriority
+import com.anen.spacealarm.location.LocationRequestSpec
+import com.anen.spacealarm.location.isFresher
 import com.anen.spacealarm.map.AnenMapView
 import com.anen.spacealarm.map.MapController
 import com.anen.spacealarm.model.Reminder
@@ -66,6 +77,8 @@ import com.anen.spacealarm.ui.theme.AnenOrangeDim
 import com.anen.spacealarm.ui.theme.AnenText
 import com.anen.spacealarm.ui.theme.AnenTextDim
 import com.anen.spacealarm.ui.theme.AnenWarn
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.maplibre.android.geometry.LatLng
 import java.text.SimpleDateFormat
@@ -91,18 +104,64 @@ fun HomeScreen(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val lifecycleOwner = LocalLifecycleOwner.current
     val locationProvider = remember { AppContainer.locationProvider(context) }
     var userLocation by remember { mutableStateOf<Location?>(null) }
     var controller by remember { mutableStateOf<MapController?>(null) }
     var lastFitKey by remember { mutableStateOf<Long?>(null) }
     var clock by remember { mutableStateOf(currentTime()) }
+    var nowNanos by remember { mutableLongStateOf(0L) }
+    // Freshness gate 持有的“已接受的最新时间戳”。只有更晚的位置才允许进入 UI。
+    var latestElapsedNanos by remember { mutableLongStateOf(Long.MIN_VALUE) }
+    // 刷新按钮状态：获取中 / 失败。
+    var refreshing by remember { mutableStateOf(false) }
+    var refreshError by remember { mutableStateOf<String?>(null) }
 
-    // 手动刷新：立即取一次高精度定位
-    val onRefreshLocation: () -> Unit = {
-        scope.launch {
-            locationProvider.currentLocation()?.let { userLocation = it }
+    val providerAvailability by locationProvider.availability.collectAsStateWithLifecycle()
+    val serviceStatus by AlarmLocationRuntime.status.collectAsStateWithLifecycle()
+
+    // currentLocation() 与 locationUpdates() 并行，返回顺序无法保证：
+    // 只接受 elapsedRealtimeNanos 更新的位置，旧结果（可能来自缓存或迟到的请求）一律丢弃。
+    val acceptLocation: (Location) -> Unit = { location ->
+        if (isFresher(location.elapsedRealtimeNanos, latestElapsedNanos)) {
+            latestElapsedNanos = location.elapsedRealtimeNanos
+            userLocation = location
+            Log.d(
+                HOME_TAG,
+                "user location state accepted lat=${location.latitude} lon=${location.longitude} " +
+                    "elapsedRealtimeNanos=${location.elapsedRealtimeNanos}"
+            )
+        } else {
+            Log.d(
+                HOME_TAG,
+                "stale location ignored elapsedRealtimeNanos=${location.elapsedRealtimeNanos} " +
+                    "latest=$latestElapsedNanos"
+            )
         }
     }
+
+    // 手动刷新：只接受 fresh location，失败给出明确状态；刷新中忽略重复点击（debounce）。
+    val onRefreshLocation: () -> Unit = {
+        if (!refreshing) {
+            refreshing = true
+            refreshError = null
+            scope.launch {
+                val fresh = locationProvider.currentLocation()
+                if (fresh != null) {
+                    acceptLocation(fresh)
+                } else {
+                    refreshError = context.getString(R.string.refresh_location_failed)
+                }
+                refreshing = false
+            }
+        }
+    }
+
+    // 闹钟服务运行时以服务发布的最新位置为准（后台持续更新）；否则用前台 UI 流。
+    val effectiveLocation: Location? =
+        if (serviceStatus.running) serviceStatus.latestLocation ?: userLocation else userLocation
+    val effectiveAvailability: Boolean? =
+        if (serviceStatus.running) serviceStatus.availability ?: providerAvailability else providerAvailability
 
     DisposableEffect(context) {
         // 顶部时钟跟随系统 ACTION_TIME_TICK（每分钟一次），页面离开自动注销。
@@ -120,22 +179,52 @@ fun HomeScreen(
         onDispose { context.unregisterReceiver(receiver) }
     }
 
-    LaunchedEffect(permissions.fineLocation || permissions.coarseLocation, locationIntervalSeconds) {
+    // 开发者模式下每秒刷新一次，用于展示定位数据年龄。
+    LaunchedEffect(developerMode) {
+        while (developerMode) {
+            nowNanos = SystemClock.elapsedRealtimeNanos()
+            delay(1_000)
+        }
+    }
+
+    // 定位流严格跟随 Activity 前台生命周期：回到 RESUMED 立即重建持续定位，
+    // 并同时请求一次 fresh 位置。离开前台 Flow 自动取消，不存在后台轮询。
+    LaunchedEffect(
+        lifecycleOwner,
+        permissions.fineLocation,
+        permissions.coarseLocation,
+        locationIntervalSeconds,
+        serviceStatus.running
+    ) {
         if (!permissions.fineLocation && !permissions.coarseLocation) return@LaunchedEffect
-        locationProvider.lastKnownLocation()?.let { userLocation = it }
-        // 地图可见期间秒级刷新（高精度）；离开页面 Flow 自动取消，不存在后台轮询。
-        locationProvider.locationUpdates(
-            intervalMillis = locationIntervalSeconds * 1000L,
-            highAccuracy = true
-        )
-            .collect { userLocation = it }
+        // 闹钟服务运行时由服务负责定位，HomeScreen 不再建立第二条定位流（省电）。
+        if (serviceStatus.running) return@LaunchedEffect
+        lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+            Log.d(HOME_TAG, "lifecycle RESUMED: (re)establishing location stream at=${System.currentTimeMillis()}")
+            coroutineScope {
+                // ① 回到前台立即重建持续定位（离开前台时由 Flow cancellation 移除 request）
+                launch {
+                    locationProvider.locationUpdates(
+                        LocationRequestSpec(
+                            intervalMillis = locationIntervalSeconds * 1000L,
+                            priority = LocationPriority.HIGH_ACCURACY
+                        )
+                    ).collect { acceptLocation(it) }
+                }
+                // ② 并行请求一次 fresh 位置，尽快恢复
+                launch {
+                    locationProvider.currentLocation()?.let(acceptLocation)
+                }
+            }
+            Log.d(HOME_TAG, "lifecycle left RESUMED: location stream cancelled at=${System.currentTimeMillis()}")
+        }
     }
 
     // 启用中的闹钟按距离排序，信息面板逐页显示（循环），面板高度不变
     val enabledSorted = reminders
         .filter { it.enabled && !it.triggered }
         .sortedBy { reminder ->
-            userLocation?.let {
+            effectiveLocation?.let {
                 DistanceCalculator.calculateDistanceMeters(
                     it.latitude, it.longitude, reminder.latitude, reminder.longitude
                 )
@@ -146,7 +235,7 @@ fun HomeScreen(
     val currentIndex = if (pageCount == 0) 0 else ((pageIndex % pageCount) + pageCount) % pageCount
     val selected = enabledSorted.getOrNull(currentIndex)
     val distance = selected?.let { reminder ->
-        userLocation?.let {
+        effectiveLocation?.let {
             DistanceCalculator.calculateDistanceMeters(
                 it.latitude, it.longitude, reminder.latitude, reminder.longitude
             )
@@ -167,14 +256,14 @@ fun HomeScreen(
         )
     }
     val scene = MapController.MapScene(
-        user = userLocation?.let { LatLng(it.latitude, it.longitude) },
+        user = effectiveLocation?.let { LatLng(it.latitude, it.longitude) },
         targets = targets,
         primary = targets.firstOrNull { it.primary },
         fitCamera = false
     )
 
     // 主目标变化时对准一次（没有目标时对准当前位置）
-    val fitKey: Long? = selected?.id ?: userLocation?.let { -1L }
+    val fitKey: Long? = selected?.id ?: effectiveLocation?.let { -1L }
     LaunchedEffect(scene, controller) {
         val mapController = controller ?: return@LaunchedEffect
         val shouldFit = fitKey != null && fitKey != lastFitKey
@@ -210,9 +299,23 @@ fun HomeScreen(
                     onRefreshLocation = onRefreshLocation,
                     onRecenter = { controller?.recenter(scene) }
                 )
+                if (refreshing || refreshError != null) {
+                    Text(
+                        text = refreshError ?: stringResource(R.string.refresh_location_getting),
+                        color = if (refreshError != null) AnenDanger else AnenOrange,
+                        fontFamily = FontFamily.Monospace,
+                        fontSize = 10.sp,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.End,
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(end = 12.dp, bottom = 108.dp)
+                    )
+                }
                 if (developerMode) {
                     LocationDebugOverlay(
-                        location = userLocation,
+                        location = effectiveLocation,
+                        availability = effectiveAvailability,
+                        nowElapsedNanos = nowNanos,
                         modifier = Modifier.align(Alignment.TopStart).padding(10.dp)
                     )
                 }
@@ -330,7 +433,12 @@ private fun MapIconButton(
 
 /** 开发者模式：地图上的定位调试信息。 */
 @Composable
-private fun LocationDebugOverlay(location: Location?, modifier: Modifier = Modifier) {
+private fun LocationDebugOverlay(
+    location: Location?,
+    availability: Boolean?,
+    nowElapsedNanos: Long,
+    modifier: Modifier = Modifier
+) {
     Column(
         modifier = modifier
             .background(AnenDeep.copy(alpha = 0.92f))
@@ -348,12 +456,29 @@ private fun LocationDebugOverlay(location: Location?, modifier: Modifier = Modif
             text = if (location == null) {
                 stringResource(R.string.dev_label_no_data)
             } else {
-                "%.6f / %.6f\n%.0f m · %s".format(
-                    location.latitude,
-                    location.longitude,
-                    location.accuracy,
-                    location.provider ?: "-"
-                )
+                val ageSeconds = if (nowElapsedNanos > 0L && location.elapsedRealtimeNanos > 0L) {
+                    (nowElapsedNanos - location.elapsedRealtimeNanos) / 1_000_000_000.0
+                } else {
+                    Double.NaN
+                }
+                val ageLabel = stringResource(R.string.dev_label_age)
+                val availabilityLabel = stringResource(R.string.dev_label_availability)
+                val availabilityValue = when (availability) {
+                    true -> stringResource(R.string.dev_value_available)
+                    false -> stringResource(R.string.dev_value_unavailable)
+                    null -> stringResource(R.string.dev_value_unknown)
+                }
+                buildString {
+                    appendLine("%.6f / %.6f".format(location.latitude, location.longitude))
+                    appendLine("%.0f m · %s".format(location.accuracy, location.provider ?: "-"))
+                    appendLine(
+                        "%s %.1f s".format(
+                            ageLabel,
+                            if (ageSeconds.isNaN() || ageSeconds < 0.0) 0.0 else ageSeconds
+                        )
+                    )
+                    append("%s %s".format(availabilityLabel, availabilityValue))
+                }
             },
             color = AnenTextDim,
             fontFamily = FontFamily.Monospace,
@@ -629,3 +754,5 @@ private fun statusOf(reminder: Reminder?, distanceMeters: Double?, inRange: Bool
 }
 
 private fun currentTime(): String = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+
+private const val HOME_TAG = "AnenHome"

@@ -6,6 +6,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.NotificationCompat
@@ -24,7 +25,9 @@ object NotificationHelper {
     const val CHANNEL_ALERT_SILENT = "space_alert_silent"
     const val CHANNEL_ALERT_VIBRATE = "space_alert_vibrate"
     const val CHANNEL_ALARM = "space_alarm"
+    const val CHANNEL_LOCATION_SERVICE = "space_location_service"
     const val ALARM_NOTIFICATION_ID = 9001
+    const val LOCATION_NOTIFICATION_ID = 9002
 
     fun createChannels(context: Context) {
         val manager = context.getSystemService(NotificationManager::class.java) ?: return
@@ -61,6 +64,50 @@ object NotificationHelper {
                 setSound(null, null)
             }
         )
+        manager.createNotificationChannel(
+            NotificationChannel(
+                CHANNEL_LOCATION_SERVICE,
+                context.getString(R.string.channel_location_service_name),
+                NotificationManager.IMPORTANCE_LOW
+            ).apply {
+                description = context.getString(R.string.channel_location_service_desc)
+                enableVibration(false)
+                setSound(null, null)
+            }
+        )
+    }
+
+    /** 前台定位服务的常驻通知（低优先级，仅状态展示）。 */
+    fun buildLocationServiceNotification(context: Context, text: String): Notification {
+        val stopIntent = PendingIntent.getService(
+            context,
+            3,
+            Intent(context, com.anen.spacealarm.location.LocationForegroundService::class.java)
+                .setAction(com.anen.spacealarm.location.LocationForegroundService.ACTION_STOP),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        return NotificationCompat.Builder(context, CHANNEL_LOCATION_SERVICE)
+            .setSmallIcon(R.drawable.ic_stat_alert)
+            .setContentTitle(context.getString(R.string.location_service_title))
+            .setContentText(text)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setOngoing(true)
+            .setOnlyAlertOnce(true)
+            .setContentIntent(MainActivity.contentIntent(context))
+            .addAction(0, context.getString(R.string.location_service_stop), stopIntent)
+            .build()
+    }
+
+    /** 更新前台定位服务通知文本；无通知权限时静默跳过。 */
+    fun updateLocationServiceNotification(context: Context, text: String) {
+        if (!canNotify(context)) return
+        try {
+            NotificationManagerCompat.from(context)
+                .notify(LOCATION_NOTIFICATION_ID, buildLocationServiceNotification(context, text))
+        } catch (e: SecurityException) {
+            // 忽略：通知权限被撤销
+        }
     }
 
     /** 通知 + 震动模式使用的一次性震动（不常驻、不循环）。 */

@@ -1,92 +1,57 @@
 package com.anen.spacealarm.location
 
-import android.annotation.SuppressLint
-import android.content.Context
 import android.location.Location
-import android.os.Looper
-import com.google.android.gms.location.LocationCallback
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationResult
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.Priority
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.flow.StateFlow
 
 /**
- * 定位入口。只提供两种使用方式：
- *  - 一次性当前位置（用户主动点击，使用高精度）；
- *  - 页面可见期间的更新流（地图打开时，默认低功耗，随生命周期停止）。
- * 不存在后台轮询。
+ * 定位请求参数，屏蔽 GMS / Android framework 的差异。
+ *
+ * [priority] 使用 Google `Priority.*` 数值；Native 实现据此选择 provider。
  */
-class LocationProvider(context: Context) {
+data class LocationRequestSpec(
+    val intervalMillis: Long,
+    val priority: Int,
+    val fastestIntervalMillis: Long = intervalMillis / 2,
+    val maxUpdateAgeMillis: Long = 0L,
+    val waitForAccurateLocation: Boolean = false,
+    /** 即使未到 interval，只要位移超过该距离也投递一次（运动触发，静止时省电）。 */
+    val minUpdateDistanceMeters: Float = 0f
+)
 
-    private val appContext = context.applicationContext
-    private val client = LocationServices.getFusedLocationProviderClient(appContext)
+/**
+ * 定位提供者抽象。
+ *
+ * 实现：
+ *  - [FusedLocationProvider]：Google Play services FusedLocationProvider（需要 GMS）
+ *  - [NativeLocationProvider]：Android framework LocationManager（无 GMS 兜底）
+ *
+ * 注意：FusedLocationProviderClient 属于 Google Play services，不是 Android Framework，
+ * 因此不能声称它在无 GMS 机型上可用；由 [LocationProviders] 在运行时选择。
+ */
+interface LocationProvider {
 
-    fun hasPermission(): Boolean = hasLocationPermission(appContext)
+    /** 人类可读的实现名，用于 Debug。 */
+    val name: String
 
-    /** 用户主动触发的一次性定位，使用高精度。 */
-    @SuppressLint("MissingPermission")
-    suspend fun currentLocation(): Location? {
-        if (!hasPermission()) return null
-        return try {
-            client.getCurrentLocation(Priority.PRIORITY_HIGH_ACCURACY, null).await()
-                ?: client.lastLocation.await()
-        } catch (e: Exception) {
-            null
-        }
-    }
+    /** 最近一次 location availability；null = 尚未收到任何回调。 */
+    val availability: StateFlow<Boolean?>
 
-    /** 最近一次已知位置，仅用于计算触发时的参考距离，不会主动定位。 */
-    @SuppressLint("MissingPermission")
-    suspend fun lastKnownLocation(): Location? {
-        if (!hasPermission()) return null
-        return try {
-            client.lastLocation.await()
-        } catch (e: Exception) {
-            null
-        }
-    }
+    fun hasPermission(): Boolean
 
-    /**
-     * 页面可见期间的更新流。
-     * 地图需要秒级刷新时用高精度短间隔；页面离开后 Flow 取消，不会在后台轮询。
-     */
-    @SuppressLint("MissingPermission")
-    fun locationUpdates(
-        intervalMillis: Long = 15_000L,
-        highAccuracy: Boolean = false
-    ): Flow<Location> = callbackFlow {
-        if (!hasPermission()) {
-            close()
-            return@callbackFlow
-        }
-        val priority = if (highAccuracy) {
-            Priority.PRIORITY_HIGH_ACCURACY
-        } else {
-            Priority.PRIORITY_BALANCED_POWER_ACCURACY
-        }
-        val request = LocationRequest.Builder(priority, intervalMillis)
-            .setMinUpdateIntervalMillis(intervalMillis / 2)
-            .build()
-        val callback = object : LocationCallback() {
-            override fun onLocationResult(result: LocationResult) {
-                result.lastLocation?.let { trySend(it) }
-            }
-        }
-        try {
-            client.requestLocationUpdates(request, callback, Looper.getMainLooper()).await()
-        } catch (e: Exception) {
-            close(e)
-        }
-        awaitClose { client.removeLocationUpdates(callback) }
-    }
+    /** fresh-only 一次性定位；失败返回 null，绝不回退到缓存位置。 */
+    suspend fun currentLocation(): Location?
 
-    companion object {
-        /** 地图显示等普通用途：粗略或精确定位都可。围栏注册要求精确位置，见 PermissionManager。 */
-        fun hasLocationPermission(context: Context): Boolean =
-            com.anen.spacealarm.permission.PermissionManager.hasAnyLocation(context)
-    }
+    /** 最近已知位置，仅供 UI 初始显示 / Debug，不用于距离或围栏判断。 */
+    suspend fun lastKnownLocation(): Location?
+
+    /** 持续定位流。调用方改变频率时取消旧流即可（Flow 会移除 request）。 */
+    fun locationUpdates(spec: LocationRequestSpec): Flow<Location>
 }
+
+/**
+ * 并行请求（持续更新 + 一次性定位）返回顺序不定：只允许时间戳更新的结果覆盖。
+ * 纯函数，便于单元测试。
+ */
+internal fun isFresher(candidateElapsedRealtimeNanos: Long, currentElapsedRealtimeNanos: Long?): Boolean =
+    currentElapsedRealtimeNanos == null || candidateElapsedRealtimeNanos > currentElapsedRealtimeNanos

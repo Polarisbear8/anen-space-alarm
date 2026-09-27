@@ -1,8 +1,8 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App -->
-    <string name="app_name">ANEN Space Alarm</string>
-    <string name="app_title">ANEN / SPATIAL ALARM</string>
+    <string name="app_name">ANENG Space Alarm</string>
+    <string name="app_title">ANENG / SPATIAL ALARM</string>
     <string name="app_subtitle">SPATIAL REMINDER TERMINAL</string>
     <string name="app_description">A lightweight spatial reminder app. It alerts you when you approach a place you chose.</string>
 
@@ -141,6 +141,16 @@
     <string name="settings_developer_section">DEVELOPER</string>
     <string name="dev_mode_on">ON</string>
     <string name="dev_mode_off">OFF</string>
+    <string name="reliability_section">BACKGROUND RELIABILITY</string>
+    <string name="reliability_intro">Spatial alarms depend on the system delivering geofence events while ANENG is in the background. Some phones restrict background apps and can delay or drop alerts.</string>
+    <string name="reliability_honor_steps">Settings &gt; Apps &gt; App launch &gt; ANENG &gt; Manage manually</string>
+    <string name="reliability_honor_detail">Turn on Auto-launch, Secondary launch and Run in background where available.</string>
+    <string name="reliability_generic_detail">Allow ANENG to run in the background and exclude it from battery optimization.</string>
+    <string name="reliability_manual_check">Manual check: the app cannot read these switches, so verify them yourself.</string>
+    <string name="reliability_open_launch">Launch settings</string>
+    <string name="reliability_open_battery">Battery settings</string>
+    <string name="reliability_battery_exempt">Battery optimization: exempt.</string>
+    <string name="reliability_battery_optimized">Battery optimization: active — background alerts may be delayed.</string>
 
     <!-- Permission check -->
     <string name="permission_check_title">PERMISSION CHECK</string>
@@ -171,9 +181,9 @@
 
     <!-- About -->
     <string name="about_title">ABOUT</string>
-    <string name="about_subtitle">anen space alarm</string>
+    <string name="about_subtitle">aneng space alarm</string>
     <string name="about_version_section">VERSION</string>
-    <string name="about_app">ANEN Space Alarm</string>
+    <string name="about_app">ANENG Space Alarm</string>
     <string name="about_version">%1$s (%2$d)</string>
     <string name="about_acknowledgements">ACKNOWLEDGEMENTS</string>
     <string name="about_source_label">Source</string>
@@ -197,6 +207,19 @@
     <string name="credit_openfreemap">Development-time vector tile hosting for the map style.</string>
 
     <!-- Developer sections -->
+    <string name="dev_section_compat">RUNTIME COMPAT</string>
+    <string name="dev_section_location_service">LOCATION SERVICE</string>
+    <string name="dev_label_service">Service</string>
+    <string name="dev_value_running">RUNNING</string>
+    <string name="dev_value_stopped">STOPPED</string>
+    <string name="dev_label_mode">Mode</string>
+    <string name="dev_label_requested_interval">Requested interval</string>
+    <string name="dev_label_last_callback">Last callback</string>
+    <string name="dev_label_distance">Distance to target</string>
+    <string name="dev_label_closing_speed">Closing speed</string>
+    <string name="dev_label_eta">ETA</string>
+    <string name="dev_label_radius">Reminder radius</string>
+    <string name="dev_label_trigger">Trigger</string>
     <string name="dev_section_system_status">APP SYSTEM STATUS</string>
     <string name="dev_section_share">SHARE DEBUG</string>
     <string name="dev_section_resolver">AMAP RESOLVER DEBUG</string>
@@ -210,16 +233,40 @@
     <string name="dev_label_android">Android</string>
     <string name="dev_label_sdk">SDK</string>
     <string name="dev_label_device">Device</string>
+    <string name="dev_label_manufacturer">Manufacturer</string>
+    <string name="dev_label_model">Model</string>
+    <string name="dev_label_gms">Google Play services</string>
+    <string name="dev_label_gms_version">GMS version</string>
+    <string name="dev_label_location_services">Location services</string>
+    <string name="dev_label_battery_optimization">Battery optimization</string>
+    <string name="dev_label_standby_bucket">Standby bucket</string>
+    <string name="dev_label_process_state">Process state</string>
+    <string name="dev_label_geofence_registration">Last geofence registration</string>
+    <string name="dev_label_boot_restore">Last boot restore</string>
+    <string name="dev_label_boot_broadcast">Boot broadcast</string>
+    <string name="dev_value_exempt">exempt (whitelisted)</string>
+    <string name="dev_value_optimized">optimized (may restrict)</string>
+    <string name="dev_value_missing">missing (reboot not reported)</string>
+    <string name="dev_value_handled">handled</string>
     <string name="dev_label_latitude">Latitude</string>
     <string name="dev_label_longitude">Longitude</string>
     <string name="dev_label_accuracy">Accuracy</string>
     <string name="dev_label_coordinate_system">Coordinate</string>
     <string name="dev_label_provider">Provider</string>
     <string name="dev_label_timestamp">Timestamp</string>
+    <string name="dev_label_last_update">Last update</string>
+    <string name="dev_label_age">Age</string>
+    <string name="dev_label_availability">Availability</string>
+    <string name="dev_value_available">AVAILABLE</string>
+    <string name="dev_value_unavailable">UNAVAILABLE</string>
+    <string name="dev_value_unknown">UNKNOWN</string>
     <string name="dev_label_map_engine">Map engine</string>
     <string name="dev_label_map_source">Map source</string>
     <string name="dev_label_geofence_engine">Geofence engine</string>
     <string name="dev_label_active_geofences">Active geofences</string>
+    <string name="dev_label_last_event">Last event</string>
+    <string name="dev_label_last_event_time">Last event time</string>
+    <string name="dev_label_last_reminder">Last reminder</string>
     <string name="dev_label_reminders">Reminders</string>
     <string name="dev_label_active_reminders">Active</string>
     <string name="dev_label_no_data">No data yet</string>
@@ -244,6 +291,12 @@
     <string name="channel_alert_vibrate_name">Space alert (vibrate)</string>
     <string name="channel_alert_vibrate_desc">Notification with vibration</string>
     <string name="channel_alarm_name">Space alarm</string>
+    <string name="channel_location_service_name">Location service</string>
+    <string name="channel_location_service_desc">Keeps positioning while a space alarm is armed.</string>
+    <string name="location_service_title">ANENG spatial alarm running</string>
+    <string name="location_service_stop">Stop</string>
+    <string name="refresh_location_getting">Getting fresh fix…</string>
+    <string name="refresh_location_failed">Location refresh failed</string>
     <string name="channel_alarm_desc">Ring and vibrate when entering the target range</string>
     <string name="notif_title">Space alert</string>
     <string name="notif_title_alarm">Space alarm</string>

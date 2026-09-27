@@ -51,6 +51,7 @@ class AlarmService : Service() {
             NotificationHelper.ALARM_NOTIFICATION_ID,
             NotificationHelper.buildAlarmNotification(this, id, placeName, message, radius)
         )
+        Log.d(TAG, "ALERT DELIVERED deliveredAt=${System.currentTimeMillis()} reminderId=$id")
         startSound()
         startVibration()
         if (!autoStopScheduled) {
